@@ -27,6 +27,7 @@ def matrix_sheet_name(year: int) -> str:
 
     return "IM{}{:0>4d}-T6".format(extra, year)
 
+
 print("getting files")
 
 data_only2022 = pd.ExcelFile("../raw/2022tablesforpublicationon20212023las.xlsx")
@@ -45,15 +46,17 @@ for year in range(2012, 2023):
     data = data_src.parse(
         matrix_sheet, header=5, index_col=0, usecols="B:N", skipfooter=1
     )
+
     if not assert_square(data):
         print("not square:", year)
         continue
 
     # make dashes 0
     data[data == "-"] = 0
-    data_object = make_object(data, year)
 
+    data_object = make_object(data, year)
     data_out.append(data_object)
+
     print("processed:", year)
 
 with open(output_file, "w") as f:
