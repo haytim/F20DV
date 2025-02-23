@@ -23,7 +23,17 @@ Promise.all([
     //convert data to an easy lookup format
     const dataMap = {};
     data.forEach(d => {
-        dataMap[d["Area Code"]] = d;
+        //convert each value to a number + handling commas
+        const convertedData = { ...d };  //copy the data to preserve original
+
+        //iterate over the years
+        Object.keys(d).forEach(key => {
+            if (key !== "Area Code" && key !== "Region" && key !== "Area Name") {
+                convertedData[key] = parseFloat(d[key].replace(/,/g, '')); //remove commas and convert to number
+            }
+        });
+
+        dataMap[d["Area Code"]] = convertedData;
     });
 
     console.log(dataMap);
