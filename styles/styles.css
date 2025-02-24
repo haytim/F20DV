@@ -6,11 +6,3 @@ svg {
     height: 900px;
     border: 1px solid #ddd;
 }
-.region {
-    fill: lightblue;
-    stroke: #333;
-    stroke-width: 0.5px;
-}
-.region:hover {
-    fill: steelblue;
-}

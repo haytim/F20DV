@@ -41,14 +41,14 @@ Promise.all([
 
     //determine the range dynamically from data
     const allValues = data.flatMap(d => Object.values(d).slice(3).map(Number)); //extract all numeric values
-    //set min and max values based on quantiles
+    //set min and max values based on quantiles (changed max value to a set value as it was a little broken)
     const minValue = d3.quantile(allValues, 0.01); 
-    const maxValue = d3.quantile(allValues, 0.99); 
+    const maxValue = 3500; 
 
     //define color scale (red for negative, green for positive)
     const colorScale = d3.scaleLinear()
         .domain([minValue, 0, maxValue]) 
-        .range(["red", "white", "green"]);
+        .range(["red", "white", "rgb(33, 141, 5)"]);
 
     //function to update map based on selected year
     function updateMap(year) {
