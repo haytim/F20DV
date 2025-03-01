@@ -12,14 +12,20 @@ const projection = d3.geoMercator()
     .scale(2500)       //adjust scale
     .translate([width / 2, height / 2]);
 
+const g = svg.append("g");
+
 //define path generator
 const path = d3.geoPath().projection(projection);
 
 //load data and map
 Promise.all([
-    d3.json("https://raw.githubusercontent.com/martinjc/UK-GeoJSON/master/json/administrative/gb/lad.json"),
-    d3.json("./data/internalUKmigrationTimeseries.json")
+    d3.json("data/ltla2024.geojson"),
+    d3.json("data/internalUKmigrationTimeseries.json")
 ]).then(([geoData, data]) => {
+
+    console.log("Loaded GeoJSON:", geoData);
+    console.log("Loaded Data JSON:", data);
+
     //convert data to an easy lookup format
     const dataMap = {};
     data.forEach(d => {
@@ -36,8 +42,13 @@ Promise.all([
         dataMap[d["Area Code"]] = convertedData;
     });
 
-    console.log(dataMap);
-    console.log(geoData);
+    //check which geodata areacodes aren't matching with the json data
+    geoData.features.forEach(feature => {
+        const areaCode = feature.properties.areacd.trim();
+        if (!dataMap.hasOwnProperty(areaCode)) {
+            console.warn("No matching data for:", areaCode, feature.properties.areanm);
+        }
+    });
 
     //determine the range dynamically from data
     const allValues = data.flatMap(d => Object.values(d).slice(3).map(Number)); //extract all numeric values
@@ -52,7 +63,7 @@ Promise.all([
 
     //function to update map based on selected year
     function updateMap(year) {
-        svg.selectAll(".region")
+        g.selectAll(".region")
             .data(geoData.features)
             .join("path")
             .attr("class", "region")
@@ -60,7 +71,7 @@ Promise.all([
             .style("stroke", "#333")
             .style("stroke-width", "0.5px")
             .style("fill", d => {
-                const areaCode = d.properties.LAD13CD;
+                const areaCode = d.properties.areacd;
                 if (areaCode == "E07000169") {
                     console.log("here")
                 }

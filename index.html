@@ -4,14 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UK Map with D3.js</title>
+    <script src="https://unpkg.com/topojson@3"></script>
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <link rel="stylesheet" href="/styles/styles.css">
 </head>
 <body>
-    <svg id="map"></svg>
-    <label for="yearSlider">Year: </label>
-    <input type="range" id="yearSlider" min="2012" max="2022" step="1" value="2012">
-    <span id="yearLabel">2012</span>
-    <script src="./scripts/map.js"></script>
+    <!-- Regions Map -->
+    <div>
+        <h2>Regions Migration Over Time</h2>
+        <svg id="regions-map"></svg>
+        <label for="regions-yearSlider">Year: </label>
+        <input type="range" id="regions-yearSlider" min="2012" max="2022" value="2012">
+        <span id="regions-yearLabel">2012</span>
+    </div>
+
+    <!-- LAs Map -->
+    <div>
+        <h2>Local Authority Migration Over Time</h2>
+        <svg id="map"></svg>
+        <label for="yearSlider">Year: </label>
+        <input type="range" id="yearSlider" min="2012" max="2022" step="1" value="2012">
+        <span id="yearLabel">2012</span>
+    </div>
+    <script src="/scripts/regions-map.js"></script>
+    <script src="/scripts/map.js"></script>
 </body>
 </html>
