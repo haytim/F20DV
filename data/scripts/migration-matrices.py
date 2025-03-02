@@ -33,6 +33,8 @@ print("getting files")
 data_only2022 = pd.ExcelFile("../raw/2022tablesforpublicationon20212023las.xlsx")
 data_longterm = pd.ExcelFile("../raw/internalmigrationbackseries2012to2021.xlsx")
 
+ireland_code = "N92000002"
+
 output_file = "../internal_migration_matrices.json"
 
 data_out = list()
@@ -47,13 +49,16 @@ for year in range(2012, 2023):
         matrix_sheet, header=5, index_col=0, usecols="B:N", skipfooter=1
     )
 
+    # we're not including NI in our analysis
+    data.drop(index=ireland_code, inplace=True)
+    data.drop(columns=ireland_code, inplace=True)
+
     if not assert_square(data):
         print("not square:", year)
         continue
 
     # make dashes 0
     data[data == "-"] = 0
-
     data_object = make_object(data, year)
     data_out.append(data_object)
 
