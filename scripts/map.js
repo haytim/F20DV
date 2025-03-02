@@ -56,10 +56,8 @@ Promise.all([
     const minValue = d3.quantile(allValues, 0.01); 
     const maxValue = 3500; 
 
-    //define color scale (red for negative, green for positive)
-    const colorScale = d3.scaleLinear()
-        .domain([minValue, 0, maxValue]) 
-        .range(["pink", "white", "rgb(33, 141, 5)"]);
+    //define color scale (pink for negative, green for positive)
+    const colorScale = d3.scaleDiverging([minValue, 0, maxValue], d3.interpolatePiYG)
 
     //function to update map based on selected year
     function updateMap(year) {
