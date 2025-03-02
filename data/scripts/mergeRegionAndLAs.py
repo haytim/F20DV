@@ -1,3 +1,5 @@
+#file to take internal migration data from regional and local authority files and put them together into a hierarchical json structure to make zooming possible maybe
+
 import json
 import csv
 

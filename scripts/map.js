@@ -59,7 +59,7 @@ Promise.all([
     //define color scale (red for negative, green for positive)
     const colorScale = d3.scaleLinear()
         .domain([minValue, 0, maxValue]) 
-        .range(["red", "white", "rgb(33, 141, 5)"]);
+        .range(["pink", "white", "rgb(33, 141, 5)"]);
 
     //function to update map based on selected year
     function updateMap(year) {
