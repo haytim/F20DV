@@ -6,6 +6,7 @@
     <title>UK Map with D3.js</title>
     <script src="https://unpkg.com/topojson@3"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script> <!--Loading in colour scale-->
     <link rel="stylesheet" href="/styles/styles.css">
 </head>
 <body>
@@ -34,9 +35,21 @@
         <h2>House Price Deciles Compared To Income Deciles And Population Per Region</h2>
         <div id="bubbleChart"></div> <!--turned it into div?-->
         <label for="bmap-yearSlider">Year: </label>
-        <input type="range" id="bmap-yearSlider" min="2012" max="2022" step="1" value="2012">
-        <span id="bmap-yearLabel">2012</span>
+        <input type="range" id="bmap-yearSlider" min="2012" max="2022" step="1" value="2022">
+        <span id="bmap-yearLabel">2022</span>
     </div>
     <script src="/scripts/bubbleChartScript.js"></script>
+
+    <!--CSS for the bubble chart, please move if necessary :)-->
+    <style>
+        .bubbles {
+            stroke-width: 1px;
+            stroke: white;
+        }
+        .bubbles:hover {
+            stroke: black;
+        }
+    </style>
+    
 </body>
 </html>

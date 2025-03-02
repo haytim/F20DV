@@ -2,91 +2,119 @@
 var margins = {
     top: 10,
     right: 20,
-    bottom:  30,
-    left: 50
+    bottom:  0,
+    left: 80
 };
 
 var bubbleWidth = 800 - margins.left - margins.right; //get the width of graph
-var bubbleHeight = 1200 - margins.top - margins.bottom; //get height of graph
+var bubbleHeight = 800 - margins.top - margins.bottom; //get height of graph
 
 var bubbleSvg = d3.select("#bubbleChart")
     .append("svg")
-    .attr("width", bubbleWidth + margins.left + margins.right)
-    .attr("height", bubbleHeight + margins.top + margins.bottom)
+    .attr("width", width + margins.left + margins.right)
+    .attr("height", height + margins.top + margins.bottom)
     .append("g")
-    .attr("transform", "translate("+margins.left + ","+margins.top + ")");
-    
-Promise.all([
-    d3.csv("data/table1_housingPurchase_housePriceDeciles.csv"),
-    d3.csv("data/table2_housingPurchase_incomeDeciles.csv")
-]).then(function([housePriceData, incomeData]) { 
-    //convert the year columns to actual numbers
-    housePriceData.forEach (d => 
-    {
-        for(let year = 2012; year <= 2022; year++)
-        {
-            d[year] = +d[year];
-        }
-    });
-    incomeData.forEach (d => 
-    {
-        for(let year = 2012; year <= 2022; year++)
-        {
-            d[year] = +d[year];
-        }
+    .attr("transform","translate(" + margins.left + "," + margins.top + ")");
+
+d3.csv("data/housePriceIncome_Test.csv").then(function(data) {
+    //TESTING- get 2022
+    data = data.filter(d => d.year === "2022");
+
+    //convert to numerical values from the csv
+    data.forEach(d => {
+        d.avg_income = +d.avg_income;
+        d.avg_housePrice = +d.avg_housePrice;
     });
 
-    let mData = []; //need to merge both datasets by countryRegionName and decile
+    //x axis
+    var x = d3.scaleLinear()
+        .domain([0,d3.max(data, d=>d.avg_income)])
+        .range([0, bubbleWidth])
 
-    housePriceData.forEach(house => 
-    {
-        let income = incomeData.find
-        (
-            //match up the country region names and income deciles
-            inc => inc.countryRegionName === house.countryRegionName && inc.IncomeDecile === house.HousePriceDecile
-        );
-        if(income)
-        {
-            mData.push({ //push this income data to the merged data
-                region: house.countryRegionName,
-                decile: house.HousePriceDecile,
-                housePrice: house[2022],
-                income: income[2022]
-            });
-        }
-    });
-
-    //define the scales for the graph
-    var x = d3.scaleLinear() //x is the house price
-        .domain([0, d3.max(mData, d => d.housePrice)])
-        .range([0, bubbleWidth]);
-
-    var y = d3.scaleLinear() //y is the income
-        .domain([0, d3.max(mData, d => d.income)])
-        .range([bubbleHeight, 0]);
-
-    var z = d3.scaleSqrt() //house price is the bubble size
-        .domain([d3.min(mData, d => d.housePrice), d3.max(mData, d => d.housePrice)])
-        .range([5, 40]);
-
-    //add x and y axes to the graph
     bubbleSvg.append("g")
-        .attr("transform", "translate(0," + bubbleHeight + ")")
-        .call(d3.axisBottom(x));
+        .attr("transform","translate(0,"+bubbleHeight+")")
+        .call(d3.axisBottom(x))
+
+    //y axis
+    var y = d3.scaleLinear()
+        .domain([0, d3.max(data, d=>d.avg_housePrice)])
+        .range([bubbleHeight, 0]);
 
     bubbleSvg.append("g")
         .call(d3.axisLeft(y));
 
-    //add the bubbles
-    bubbleSvg.selectAll("circle")
-        .data(mData)
+    //x axis label
+    bubbleSvg.append("text")
+        .attr("text-anchor", "middle")
+        .attr("x", bubbleWidth / 2) //place in middle of chart
+        .attr("y", bubbleHeight + 40)
+        .style("font-size", "14px")
+        .text("Average Income (GDP)");
+
+    //y axis label
+    bubbleSvg.append("text")
+        .attr("text-anchor", "middle")
+        .attr("transform", "rotate(-90)") //rotated 90 to fit along the y axis
+        .attr("x", -bubbleHeight / 2) //place in middle of chart
+        .attr("y", -60)
+        .style("font-size", "14px")
+        .text("Average House Price (GDP)");
+
+    //scale for bubble colour
+    var bubbleColours = d3.scaleOrdinal()
+        .domain(["England", "Scotland","Northern Ireland","Wales"])
+        .range(d3.schemeSet2)
+
+    //bubble scale, z axis, making the bubbles the size of the avg house price for now
+    var z = d3.scaleLinear()
+        .domain([d3.min(data, d=>d.avg_housePrice), d3.max(data, d=>d.avg_housePrice)])
+        .range([15, 70]); //maybe modify bubble size
+
+    //tool tip div, hidden on load
+    var ttip = d3.select('#bubbleChart')
+        .append("div")
+        .style("opacity", 0)
+        .attr("class", "tooltip")
+        .style("background-color", "black")
+        .style("border-radius", "5px")
+        .style("padding", "10px")
+        .style("color", "white")
+        .style("position","absolute");
+
+    //functions for tool tip
+    var showttip = function(event, d)
+    {
+        //console.log(d) TESTING to see what country appears
+        ttip.transition().duration(200)
+        ttip
+            .style("opacity",1)
+            .html("Country/Region: " + d.countryRegionName)
+            .style("left", (event.pageX+10) + "px")
+            .style("top", (event.pageY-10) + "px");
+    }
+    var movettip = function(event, d)
+    {
+        ttip
+            .style("left", (event.pageX + 10) + "px")
+            .style("top", (event.pageY-10) + "px");
+    }
+    var hidettip = function(event, d)
+    {
+        ttip.transition().duration(200).style("opacity",0);
+    }
+
+    bubbleSvg.append('g')
+        .selectAll("circle")
+        .data(data)
         .enter()
         .append("circle")
-        .attr("cx", d => x(d.housePrice))
-        .attr("cy", d => y(d.income))
-        .attr("r", d => z(d.housePrice))
-        .style("fill", "#69b3a2")
+        .attr("cx", d => x(d.avg_income)) //x axis is average income
+        .attr("cy", d => y(d.avg_housePrice)) //y axis is average house price
+        .attr("r", d => z(d.avg_housePrice)) //bubble size is currently avg house price
+        .style("fill", d => bubbleColours(d.country)) //add different colours for the different countries
         .style("opacity", 0.7)
-        .attr("stroke", "black");
-
+        .attr("stroke", "black")
+        .on("mouseover", showttip)
+        .on("mousemove", movettip)
+        .on("mouseleave", hidettip);
 });

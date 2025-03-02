@@ -1,0 +1,144 @@
+countryRegionName,year,avg_housePrice,avg_income,country
+England,2012,210234,27402.33,England
+North East,2012,129536,23698.67,England
+North West,2012,142661,25445.00,England
+Yorkshire and The Humber,2012,144252,24539.22,England
+East Midlands,2012,151222,25470.33,England
+West Midlands,2012,161150,25284.11,England
+East of England,2012,215999,29030.44,England
+London,2012,365111,30665.67,England
+South East,2012,256111,31409.00,England
+South West,2012,208489,26871.44,England
+Wales,2012,142889,23943.22,Wales
+Scotland,2012,141728,26604.56,Scotland
+Northern Ireland,2012,104444,23123.78,Northern Ireland
+England,2013,216389,28289.22,England
+North East,2013,132333,24409.56,England
+North West,2013,146444,25781.67,England
+Yorkshire and The Humber,2013,147889,24956.00,England
+East Midlands,2013,155806,26397.33,England
+West Midlands,2013,165944,26068.22,England
+East of England,2013,223277,30071.33,England
+London,2013,392722,32584.22,England
+South East,2013,263994,32399.89,England
+South West,2013,211939,27833.78,England
+Wales,2013,144778,25179.67,Wales
+Scotland,2013,144726,27250.56,Scotland
+Northern Ireland,2013,107217,22920.33,Northern Ireland
+England,2014,230272,29304.22,England
+North East,2014,138294,25073.33,England
+North West,2014,153808,26181.22,England
+Yorkshire and The Humber,2014,154433,26043.67,England
+East Midlands,2014,166439,27062.67,England
+West Midlands,2014,175226,26156.78,England
+East of England,2014,241833,31928.00,England
+London,2014,435221,34860.67,England
+South East,2014,283333,34048.67,England
+South West,2014,223161,28068.22,England
+Wales,2014,152111,26577.89,Wales
+Scotland,2014,153750,28415.56,Scotland
+Northern Ireland,2014,116273,23771.22,Northern Ireland
+England,2015,244822,30285.11,England
+North East,2015,142444,25454.56,England
+North West,2015,158667,27562.00,England
+Yorkshire and The Humber,2015,161059,26907.00,England
+East Midlands,2015,176883,28008.67,England
+West Midlands,2015,182833,27024.78,England
+East of England,2015,263611,30913.33,England
+London,2015,476811,35640.00,England
+South East,2015,307883,35093.89,England
+South West,2015,236722,29852.33,England
+Wales,2015,156889,27095.67,Wales
+Scotland,2015,153984,29312.89,Scotland
+Northern Ireland,2015,122994,24836.33,Northern Ireland
+England,2016,254888,30615.89,England
+North East,2016,147102,25669.56,England
+North West,2016,167222,27773.22,England
+Yorkshire and The Humber,2016,168389,27821.67,England
+East Midlands,2016,188140,28404.78,England
+West Midlands,2016,194277,27173.56,England
+East of England,2016,287222,30853.33,England
+London,2016,500336,35429.11,England
+South East,2016,330327,36273.44,England
+South West,2016,251722,30130.33,England
+Wales,2016,162332,27655.56,Wales
+Scotland,2016,154438,29507.33,Scotland
+Northern Ireland,2016,129550,25828.44,Northern Ireland
+England,2017,264739,31385.78,England
+North East,2017,150161,27662.44,England
+North West,2017,174111,28138.00,England
+Yorkshire and The Humber,2017,173389,28076.89,England
+East Midlands,2017,198272,29058.11,England
+West Midlands,2017,204267,28115.56,England
+East of England,2017,304444,33641.56,England
+London,2017,531056,37224.89,England
+South East,2017,345499,35185.67,England
+South West,2017,264550,30711.89,England
+Wales,2017,167499,27830.00,Wales
+Scotland,2017,161889,28843.67,Scotland
+Northern Ireland,2017,133893,25175.33,Northern Ireland
+England,2018,268333,32246.33,England
+North East,2018,153827,29089.11,England
+North West,2018,178665,29349.22,England
+Yorkshire and The Humber,2018,178999,28356.11,England
+East Midlands,2018,207411,29742.89,England
+West Midlands,2018,212361,29081.56,England
+East of England,2018,309333,33731.89,England
+London,2018,523494,37199.89,England
+South East,2018,349778,37323.67,England
+South West,2018,270833,31085.44,England
+Wales,2018,172656,28172.89,Wales
+Scotland,2018,166203,30233.78,Scotland
+Northern Ireland,2018,139772,25564.67,Northern Ireland
+England,2019,275755,34060.11,England
+North East,2019,157324,29863.11,England
+North West,2019,186554,30858.89,England
+Yorkshire and The Humber,2019,185383,29962.11,England
+East Midlands,2019,211778,31260.78,England
+West Midlands,2019,218031,30056.56,England
+East of England,2019,314667,37361.78,England
+London,2019,538812,39982.56,England
+South East,2019,356606,38939.44,England
+South West,2019,275768,32278.11,England
+Wales,2019,179277,30895.89,Wales
+Scotland,2019,169913,31420.11,Scotland
+Northern Ireland,2019,144198,26994.33,Northern Ireland
+England,2020,310111,34402.89,England
+North East,2020,171828,29340.00,England
+North West,2020,210054,32084.00,England
+Yorkshire and The Humber,2020,205717,30503.67,England
+East Midlands,2020,237933,33439.44,England
+West Midlands,2020,245110,30549.22,England
+East of England,2020,348661,35748.11,England
+London,2020,572056,39989.44,England
+South East,2020,397500,38949.22,England
+South West,2020,311000,33203.89,England
+Wales,2020,197639,31060.22,Wales
+Scotland,2020,181960,32567.00,Scotland
+Northern Ireland,2020,160281,29525.89,Northern Ireland
+England,2021,310011,35497.67,England
+North East,2021,171006,29965.33,England
+North West,2021,214322,32289.11,England
+Yorkshire and The Humber,2021,207888,32123.22,England
+East Midlands,2021,242333,33268.33,England
+West Midlands,2021,246556,32590.00,England
+East of England,2021,349389,37349.22,England
+London,2021,578277,42420.11,England
+South East,2021,396388,39468.78,England
+South West,2021,313383,34784.44,England
+Wales,2021,209168,31496.00,Wales
+Scotland,2021,189003,34265.89,Scotland
+Northern Ireland,2021,163928,31550.44,Northern Ireland
+England,2022,331277,37777.67,England
+North East,2022,180722,32385.11,England
+North West,2022,228009,34038.44,England
+Yorkshire and The Humber,2022,221000,34107.44,England
+East Midlands,2022,259830,35354.56,England
+West Midlands,2022,264383,32318.11,England
+East of England,2022,375016,40559.33,England
+London,2022,606022,43826.44,England
+South East,2022,423828,43238.56,England
+South West,2022,341278,37702.33,England
+Wales,2022,226167,37029.11,Wales
+Scotland,2022,203888,35325.89,Scotland
+Northern Ireland,2022,172244,33770.56,Northern Ireland
