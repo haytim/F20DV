@@ -20,7 +20,7 @@ const path = d3.geoPath().projection(projection);
 //load data and map
 Promise.all([
     d3.json("data/ltla2024.geojson"),
-    d3.json("data/internalUKmigrationTimeseries.json")
+    d3.json("data/internalUKMigrationTimeseries.json")
 ]).then(([geoData, data]) => {
 
     console.log("Loaded GeoJSON:", geoData);
