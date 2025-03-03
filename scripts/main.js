@@ -1,4 +1,6 @@
+// 11 distinct colours generated with medialab tools i want hue https://medialab.github.io/iwanthue/
 const colours = ["#cb55a5","#66b743","#8345ca","#b19e42","#685699","#d27131","#6999c2","#d24049","#64b088","#763535","#4b612e"]
+// region codes and names
 const regions = [
     {name: "Scotland", code: "S92000003"},
     {name: "North East", code: "E12000001"},
@@ -12,14 +14,38 @@ const regions = [
     {name: "South West", code: "E12000009"},
 ]
 
+/**
+ * get region code based on region name
+ * @param {string} regionName 
+ * @returns {string} region code
+ */
 function regionNameToCode(regionName) {
     return regions.find(d => d.name === regionName).code
 }
 
+/**
+ * get region name based on region code
+ * @param {string} regionCode 
+ * @returns {string} region name
+ */
 function regionCodeToName(regionCode) {
     return regions.find(d => d.code === regionCode).name
 }
 
+/**
+ * get colour by region name
+ * @param {string} regionName
+ * @returns {string} hex colour
+ */
 const regionScaleByName = d3.scaleOrdinal()
     .domain(regions.map(d => d.name).sort())
     .range(colours)
+
+/**
+ * get colour by region code
+ * @param {string} regionCode
+ * @returns {string} hex colour
+ */
+function regionScaleByCode(regionCode) {
+    return regionScaleByName(regionCodeToName(regionCode))
+}
