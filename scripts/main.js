@@ -58,3 +58,10 @@ const regionScaleByName = d3.scaleOrdinal()
 function regionScaleByCode(regionCode) {
     return regionScaleByName(regionCodeToName(regionCode))
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    sliderSet("#global-slider");
+    sliderRegisterCallback(function () {
+        document.querySelector("#slider-container span").innerText = this.value;
+    })
+});

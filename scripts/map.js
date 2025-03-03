@@ -80,15 +80,9 @@ Promise.all([
     }
 
     //initial map rendering
-    updateMap("2012");
+    updateMap(sliderCurrentValue());
 
-    //add event listener for slider
-    const slider = d3.select("#yearSlider");
-    const yearLabel = d3.select("#yearLabel");
-
-    slider.on("input", function () {
-        const selectedYear = this.value;
-        yearLabel.text(this.value);
-        updateMap(selectedYear);
+    sliderRegisterCallback(function () {
+        updateMap(this.value);
     });
 });

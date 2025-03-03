@@ -7,26 +7,27 @@
     <script src="https://unpkg.com/topojson@3"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script> <!--Loading in colour scale-->
+    <script src="/scripts/slider.js"></script>
     <script src="/scripts/main.js"></script>
     <link rel="stylesheet" href="/styles/styles.css">
 </head>
 <body>
+    <div id="slider-container">
+        <label>Year</label>
+        <input id="global-slider" type="range" min="2012" max="2022" value="2012">
+        <span>2012</span>
+    </div>
+
     <!-- Regions Map -->
     <div>
         <h2>Regions Migration Over Time</h2>
         <svg id="regions-map"></svg>
-        <label for="regions-yearSlider">Year: </label>
-        <input type="range" id="regions-yearSlider" min="2012" max="2022" value="2012">
-        <span id="regions-yearLabel">2012</span>
     </div>
 
     <!-- LAs Map -->
     <div>
         <h2>Local Authority Migration Over Time</h2>
         <svg id="map"></svg>
-        <label for="yearSlider">Year: </label>
-        <input type="range" id="yearSlider" min="2012" max="2022" step="1" value="2012">
-        <span id="yearLabel">2012</span>
     </div>
     <script src="/scripts/regions-map.js"></script>
     <script src="/scripts/map.js"></script>
