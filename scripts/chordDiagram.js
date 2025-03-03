@@ -73,12 +73,12 @@ d3.json(migrationMatricesFile).then(data => {
 
 
     const ribbons = svg.append("g")
-        .attr("style", "isolation: isolate;")
+        .style("isolation", "isolate")
         .selectAll()
         .data(chords)
         .join("path")
         .attr("d", ribbon)
-        .attr("style", "mix-blend-mode: multiply;")
+        .style("mix-blend-mode", "multiply")
         .attr("fill", d => colorScale(d.target.index))
         .attr("stroke", "white")
 
