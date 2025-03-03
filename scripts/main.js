@@ -12,6 +12,7 @@ const regions = [
     {name: "London", code: "E12000007"},
     {name: "South East", code: "E12000008"},
     {name: "South West", code: "E12000009"},
+    {name: "Wales", code: "W92000004"},
 ]
 
 /**
@@ -20,7 +21,11 @@ const regions = [
  * @returns {string} region code
  */
 function regionNameToCode(regionName) {
-    return regions.find(d => d.name === regionName).code
+    try {
+        return regions.find(d => d.name === regionName).code
+    } catch {
+        return null
+    }
 }
 
 /**
@@ -29,7 +34,11 @@ function regionNameToCode(regionName) {
  * @returns {string} region name
  */
 function regionCodeToName(regionCode) {
-    return regions.find(d => d.code === regionCode).name
+    try {
+        return regions.find(d => d.code === regionCode).name
+    } catch {
+        return null
+    }
 }
 
 /**
