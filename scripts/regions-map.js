@@ -17,7 +17,7 @@ const projection2 = d3.geoMercator()
 //define path generator
 const path2 = d3.geoPath().projection(projection2);
 
-// Load data and map
+//load data and map
 Promise.all([
     d3.json("./data/rgn2024.json"), //regional data for topoJSON
     d3.json("./data/orderedRegionLAMigration.json") //migration data for regions
@@ -41,7 +41,6 @@ Promise.all([
     });
 
     //determine the range dynamically from data
-    const allValues = Object.values(data).flatMap(region => Object.values(region["Net Migration"]).map(Number)); 
     const minValue = -20000; 
     const maxValue = 40000; 
 
@@ -54,7 +53,7 @@ Promise.all([
             .data(regions.features)
             .join("path")
             .attr("class", "region")
-            .attr("d", path)
+            .attr("d", path2)
             .style("stroke", "#333")
             .style("stroke-width", "0.5px")
             .style("fill", d => {

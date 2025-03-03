@@ -23,8 +23,8 @@ Promise.all([
     d3.json("data/internalUKMigrationTimeseries.json")
 ]).then(([geoData, data]) => {
 
-    console.log("Loaded GeoJSON:", geoData);
-    console.log("Loaded Data JSON:", data);
+    //console.log("Loaded GeoJSON:", geoData);
+    //console.log("Loaded Data JSON:", data);
 
     //convert data to an easy lookup format
     const dataMap = {};
