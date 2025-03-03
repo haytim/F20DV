@@ -25,23 +25,9 @@ d3.csv("/data/populationByRegion.csv").then(function(data) {
     .range(d3.schemeSet3.slice(0, regions.length)); // maps each region to a color
     // .range(d3.quantize(d3.interpolatePiYG, regions.length)); colour scheme for piyg (may or may not use)
 */
-// sorts unique regions
-const regions = Array.from(new Set(processedData.map(d => d.region))).toSorted();
 
 // assigns colours to each unique region
-const color = d3.scaleOrdinal(regions, [
-  "#cb55a5",
-  "#66b743",
-  "#8345ca",
-  "#b19e42",
-  "#685699",
-  "#d27131",
-  "#6999c2",
-  "#d24049",
-  "#64b088",
-  "#763535",
-  "#4b612e"
-]);
+const color = regionScaleByName;
 
   // defines circle size based on population
   const size = d3.scaleLinear()
