@@ -12,11 +12,14 @@ const packingSvg = d3.select("#packing")
 d3.csv("/data/populationByRegion.csv").then(function(data) {
 
   // extracting area name, numeric population, and region info
-  const processedData = data.map(d => ({
-    key: d.areaName, // each circle represents the area name
-    value: +d["2022"].replace(/,/g, ""), 
-    region: d.region                    
-  }));
+  function updatePacking(year) {
+    // Process data for the selected year
+    const processedData = data.map(d => ({
+      key: d.areaName,
+      value: +d[year].replace(/,/g, ""), // Convert population to number
+      region: d.region
+    }));
+
 /*
   // create a color scale based on  regions
   const regions = Array.from(new Set(processedData.map(d => d.region))); // getting unique regions
@@ -26,24 +29,27 @@ d3.csv("/data/populationByRegion.csv").then(function(data) {
     // .range(d3.quantize(d3.interpolatePiYG, regions.length)); colour scheme for piyg (may or may not use)
 */
 
-// assigns colours to each unique region
-const color = regionScaleByName;
+  // assigns colours to each unique region
+  const color = regionScaleByName;
 
   // defines circle size based on population
   const size = d3.scaleLinear()
     .domain([0, d3.max(processedData, d => d.value)])
     .range([7, 55]);
 
+  
+  packingSvg.selectAll("circle").remove();
+
   // displaying onhover data
   const Tooltip = d3.select("#packing")
-    .append("div")
-    .style("opacity", 0)
-    .attr("class", "tooltip")
-    .style("background-color", "white")
-    .style("border", "solid 2px black")
-    .style("border-radius", "5px")
-    .style("padding", "5px")
-    .style("position", "absolute");
+  .append("div")
+  .style("opacity", 0)
+  .attr("class", "tooltip")
+  .style("background-color", "white")
+  .style("border", "solid 2px black")
+  .style("border-radius", "5px")
+  .style("padding", "5px")
+  .style("position", "absolute");
 
   // displaying data tootip for onhover
   const mouseover = function(event, d) {
@@ -77,7 +83,7 @@ const color = regionScaleByName;
       .attr("cx", packingWidth / 2)
       .attr("cy", packingHeight / 2)
       .style("fill", d => color(d.region))  // Color circles by region
-      .style("fill-opacity", 0.8)
+      .style("fill-opacity", 1)
       .attr("stroke", "black")
       .style("stroke-width", 1)
       .on("mouseover", mouseover)
@@ -95,7 +101,7 @@ const color = regionScaleByName;
     node.attr("cx", d => d.x)
         .attr("cy", d => d.y);
   });
-
+}
   // dragging functionality
   function dragstarted(event, d) {
     if (!event.active) simulation.alphaTarget(0.3).restart(); // activating simulation
@@ -114,4 +120,11 @@ const color = regionScaleByName;
     d.fx = null;
     d.fy = null;
   }
+  // initialize packing with current slider value
+  updatePacking(sliderCurrentValue());
+
+  // callback to update circles on when slider value is changed
+  sliderRegisterCallback(function() {
+    updatePacking(this.value);
+  });
 });
