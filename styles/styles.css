@@ -15,3 +15,15 @@ svg {
     height: 900px;
     border: 1px solid #ddd;
 }
+
+
+/*bubble chart stuff*/
+circle {
+    stroke-width: 2px;
+    stroke: white;
+}
+
+circle:hover
+{
+    stroke: black;
+}

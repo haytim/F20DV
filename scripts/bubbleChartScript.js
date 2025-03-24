@@ -7,7 +7,7 @@ const margins = {
 };
 
 const bubbleWidth = 800 - margins.left - margins.right; //get the width of graph
-const bubbleHeight = 800 - margins.top - margins.bottom; //get height of graph
+const bubbleHeight = 650 - margins.top - margins.bottom; //get height of graph
 
 const bubbleSvg = d3.select("#bubbleChart")
     .append("svg")
@@ -33,7 +33,6 @@ d3.csv("data/housePriceIncome.csv").then(function(data) {
             d.avg_income = +d.avg_income;
             d.avg_housePrice = +d.avg_housePrice;
             d.population = +d.population;
-            //d.year = +d.year; //get year from function
         });
 
         //x axis
@@ -41,7 +40,7 @@ d3.csv("data/housePriceIncome.csv").then(function(data) {
         bubbleSvg.append("g").attr("transform","translate(0,"+bubbleHeight+")").call(d3.axisBottom(x));
 
         //y axis
-        const y = d3.scaleLinear().domain([0, d3.max(fData, d=>d.avg_housePrice) * 1.7]).range([bubbleHeight, 0]);
+        const y = d3.scaleLinear().domain([0, d3.max(fData, d=>d.avg_housePrice) * 1.5]).range([bubbleHeight, 0]);
         bubbleSvg.append("g").call(d3.axisLeft(y));
 
         //x axis label
@@ -69,7 +68,7 @@ d3.csv("data/housePriceIncome.csv").then(function(data) {
         //bubble scale, z axis, making the bubbles the size of the population for each country/region
         const z = d3.scaleLinear()
             .domain([d3.min(fData, d=>d.population), d3.max(fData, d=>d.population)])
-            .range([15, 60]); //maybe modify bubble size
+            .range([5, 50]); //maybe modify bubble size
 
         
 
@@ -87,17 +86,16 @@ d3.csv("data/housePriceIncome.csv").then(function(data) {
         //functions for tool tip
         const showttip = function(event, d)
         {
-            //console.log(d) TESTING to see what country appears
             ttip.transition().duration(200)
             ttip
                 .style("opacity",1)
-                .html("Country/Region: " + d.countryRegionName)
+                .html("Country/Region: " + d.countryRegionName + "<br> Population: " + d3.format(",")(d.population))
                 .style("left", (event.pageX+10) + "px")
                 .style("top", (event.pageY-10) + "px");
 
             //make bubble lighter
             d3.select(this)
-                .style("fill", d=>d3.color(bubbleColours(d.country)).brighter(1));
+                .style("fill", d => regionScaleByName(d.countryRegionName));
         }
         const movettip = function(event, d)
         {
@@ -110,25 +108,31 @@ d3.csv("data/housePriceIncome.csv").then(function(data) {
             ttip.transition().duration(200).style("opacity",0);
 
             d3.select(this)
-                .style("fill", d => bubbleColours(d.country)); //reverse colour when not hovered
-        }
+                .style("fill", d => regionScaleByName(d.countryRegionName));
+           }
 
         //adding a legend at the bottom for different country colours
+        const cols = 3;
         const bubbleLegend = bubbleSvg.append("g")
             .attr("transform", "translate(0," + (bubbleHeight + 65)+")")
             .attr("class", "legend");
 
-        const bubbleLegendCountries = bubbleLegend.selectAll("#legend")
-            .data(bubbleColours.domain())
+        const bubbleLegendCountries = bubbleLegend.selectAll(".legend-country")
+            .data(regions)
             .enter()
             .append("g")
             .attr("class","legend-country")
-            .attr("transform", (d, i) => "translate (" + (i * 200) + ", 0)");
+            .attr("transform", (d, i) => 
+            {
+                const xOff = Math.floor(i % cols) * 200;
+                const yOff = Math.floor(i / cols) * 30;
+                return `translate(${xOff}, ${yOff})`;
+            });
 
         bubbleLegendCountries.append("rect")
             .attr("width", 20)
             .attr("height", 20)
-            .attr("fill", d => bubbleColours(d))
+            .attr("fill", d => regionScaleByName(d.name))
             .attr("stroke", "black")
             .attr("stroke-width", 1);
 
@@ -136,7 +140,7 @@ d3.csv("data/housePriceIncome.csv").then(function(data) {
             .attr("x", 30)
             .attr("y", 15)
             .style("font-size", "12px")
-            .text(d => d);
+            .text(d => d.name);
 
         bubbleSvg.append('g')
             .selectAll("circle")
@@ -146,12 +150,14 @@ d3.csv("data/housePriceIncome.csv").then(function(data) {
             .attr("cx", d => x(d.avg_income)) //x axis is average income
             .attr("cy", d => y(d.avg_housePrice)) //y axis is average house price
             .attr("r", d => z(d.population)) //bubble size is population
-            .style("fill", d => bubbleColours(d.country)) //add different colours for the different countries
+            .style("fill", d => regionScaleByName(d.countryRegionName))
             .style("opacity", 0.7)
             .attr("stroke", "black")
             .on("mouseover", showttip)
             .on("mousemove", movettip)
             .on("mouseleave", hidettip);
+            
+            //------bubble legend------//
             
     }
     //init chart
