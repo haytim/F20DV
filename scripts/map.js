@@ -68,10 +68,6 @@ Promise.all([
             .style("stroke-width", "0.5px")
             .style("fill", d => {
                 const areaCode = d.properties.areacd;
-                if (areaCode == "E07000169") {
-                    console.log("here")
-                }
-
                 const value = dataMap[areaCode] ? +dataMap[areaCode][year] || 0 : 0;
                 return colorScale(value);
             });
