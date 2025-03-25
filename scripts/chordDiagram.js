@@ -4,15 +4,11 @@ d3.json(migrationMatricesFile).then(data => {
     const selector = "#chord";
     const width = 700; const height = width;
 
-    const year = 2017;
-    const {matrix, regions} = data.find(d => d.year === year);
+    // get regions. regions are all the same order for each year
+    const {regions} = data[0];
 
     const outerRadius = Math.min(width, height) * 0.5 - 80;
     const innerRadius = outerRadius - 20;
-    const sum = d3.sum(matrix.flat());
-    const tickStep = d3.tickStep(0, sum, 100);
-    const majorTickStep = d3.tickStep(0, sum, 40);
-    const formatValue = d3.formatPrefix(",.0", tickStep);
 
     const colorScale = index => regionScaleByCode(regions[index]);
     const indexToName = index => regionCodeToName(regions[index]);
@@ -35,55 +31,92 @@ d3.json(migrationMatricesFile).then(data => {
         .attr("viewBox", [-width / 2, -height / 2, width, height])
         //.attr("style", "max-width: 100%; height: auto; font: 10px sans-serif;");
 
-    const chords = chord(matrix);
+    const group = svg.append("g");
+    const ribbonGroup = svg.append("g");
+    ribbonGroup.style("isolation", "isolate");
 
-    const group = svg.append("g")
-    .selectAll()
-    .data(chords.groups)
-    .join("g");
+    drawChordDiagram(2012);
 
-    const ticks = group.append("g")
-        .selectAll()
-        .data(d => groupTicks(d, tickStep))
-        .join("g")
-        .attr("transform", d => `rotate(${d.angle * 180 / Math.PI - 90}) translate(${outerRadius},0)`);
+    function drawChordDiagram(year) {
+        const {matrix} = data.find(d => d.year === year);
 
-    ticks.append("line")
-        .attr("stroke", "black")
-        .attr("x2", 6)
+        const sum = d3.sum(matrix.flat());
+        const tickStep = d3.tickStep(0, sum, 150);
+        const majorTickStep = d3.tickStep(0, sum, 40);
+        const formatValue = d3.formatPrefix(",.0", tickStep);
 
-    ticks.filter(d => d.value % majorTickStep === 0)
-        .append("text")
-        .attr("x", 8)
-        .attr("dy", "0.3em")
-        .attr("transform", d => d.angle > Math.PI ? "rotate(180) translate(-16)" : null)
-        .attr("text-anchor", d => d.angle > Math.PI ? "end" : null)
-        .text(d => formatValue(d.value));
+        const chords = chord(matrix);
 
-    group.select("text")
-        .attr("font-weight", "bold")
-        .text(d => indexToName(d.index))
+        const arcs = group.selectAll(".chord-groups")
+            .data(chords.groups)
+            .join(
+                enter => {
+                    const path = enter.append("path");
+                    path.append("title");
+                    return path;
+                }
+            )
+            .classed("chord-groups", true)
+            .style("fill", d => colorScale(d.index))
+            .attr("d", arc)
+            .on("mouseover", fade(.1))
+            .on("mouseout", fade(1));
 
-    const arcs = group.append("path")
-        .attr("fill", d => colorScale(d.index))
-        .attr("d", arc);
-    
-    arcs.append("title")
-        .text(d => `${indexToName(d.index)}\n${d.value.toLocaleString(navigator.language)} out`)
+        arcs.select("title")
+            .text(d => `${indexToName(d.index)}\n${d.value.toLocaleString(navigator.language)} out`)
 
+        const tickGroups = group
+            .selectAll(".tick-group")
+            .data(chords.groups)
+            .join("g")
+            .classed("tick-group", true);
 
-    const ribbons = svg.append("g")
-        .style("isolation", "isolate")
-        .selectAll()
-        .data(chords)
-        .join("path")
-        .attr("d", ribbon)
-        .style("mix-blend-mode", "multiply")
-        .attr("fill", d => colorScale(d.target.index))
-        .attr("stroke", "white")
+        const ticks = tickGroups.selectAll(".tick")
+            .data(d => groupTicks(d, tickStep))
+            .join(
+                enter => {
+                    const g = enter.append("g");
+                    g.append("line")
+                        .attr("stroke", "black")
+                        .attr("x2", 6);
+                    return g;
+                },
+                update => {
+                    update.selectAll("text").remove();
+                    return update;
+                }
+            )
+            .classed("tick", true)
+            .attr("transform", d => `rotate(${d.angle * 180 / Math.PI - 90}) translate(${outerRadius},0)`);            
+        
+        ticks.filter(d => d.value % majorTickStep === 0)
+            .append("text")
+            .attr("x", 8)
+            .attr("dy", "0.3em")
+            .attr("transform", d => d.angle > Math.PI ? "rotate(180) translate(-16)" : null)
+            .attr("text-anchor", d => d.angle > Math.PI ? "end" : null)
+            .text(d => formatValue(d.value));
 
-    ribbons.append("title")
-        .text(d => `${d.source.value.toLocaleString(navigator.language)} ${indexToName(d.source.index)} → ${indexToName(d.target.index)}${d.source.index !== d.target.index ? `\n${d.target.value.toLocaleString(navigator.language)} ${indexToName(d.target.index)} → ${indexToName(d.source.index)}` : ``}`);
+        tickGroups.select("text")
+            .attr("font-weight", "bold")
+            .text(d => indexToName(d.index));
+
+        ribbonGroup.selectAll("path").data(chords)
+            .join(
+                enter => {
+                    const path = enter.append("path");
+                    path.append("title");
+                    return path;
+                }
+            )
+            .classed("ribbon", true)
+            .attr("d", ribbon)
+            .style("mix-blend-mode", "multiply")
+            .style("stroke", "white")
+            .attr("fill", d => colorScale(d.target.index))
+            .select("title")
+            .text(d => `${d.source.value.toLocaleString(navigator.language)} ${indexToName(d.source.index)} → ${indexToName(d.target.index)}${d.source.index !== d.target.index ? `\n${d.target.value.toLocaleString(navigator.language)} ${indexToName(d.target.index)} → ${indexToName(d.source.index)}` : ``}`);
+    }
 
     /**
      * generate tick spacing for chord diagram groups
@@ -96,4 +129,18 @@ d3.json(migrationMatricesFile).then(data => {
             return {value: value, angle: value * k + d.startAngle}
         })
     }
+
+    function fade(opacity) {
+        return function (_, group) {
+            svg.selectAll(".ribbon")
+                .filter(d => d.source.index != group.index && d.target.index != group.index)
+                .transition()
+                .style("opacity", opacity);
+        };
+    }
+
+    sliderRegisterCallback(function() {
+        console.log("chord", Number(this.value));
+        drawChordDiagram(Number(this.value));
+    });
 })
