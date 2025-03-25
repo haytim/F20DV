@@ -10,6 +10,27 @@ h1, h2, h3 {
     font-variation-settings: "opsz" 32; /* large optical size */
 }
 
+.tabular, svg text.tabular {
+    font-variant-numeric: tabular-nums;
+}
+
+#slider-container {
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 400px;
+    font-variant-numeric: tabular-nums;
+    height: 3em;
+    border-radius: 1.5em;
+    font-weight: bold;
+    box-shadow: 0 0.2em 10px #aaaaaa;
+    margin: 0 auto;
+    position: fixed;
+    bottom: 1em;
+    left: calc(50% - 200px);
+}
+
 svg {
     width: 100%;
     height: 900px;
