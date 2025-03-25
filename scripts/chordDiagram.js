@@ -58,6 +58,7 @@ d3.json(migrationMatricesFile).then(data => {
             )
             .classed("chord-groups", true)
             .style("fill", d => colorScale(d.index))
+            .style("stroke", "white")
             .attr("d", arc)
             .on("mouseover", fade(.1))
             .on("mouseout", fade(1));
