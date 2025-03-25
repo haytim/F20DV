@@ -82,9 +82,9 @@ d3.csv("/data/populationByRegion.csv").then(function(data) {
   const color = regionScaleByName;
 
   // defines circle size based on population
-  const size = d3.scaleLinear()
+  const size = d3.scaleSqrt()
     .domain([0, d3.max(processedData, d => d.value)])
-    .range([7, 55]);
+    .range([3, 40]);
 
   // creating circles for each data point
   const node = packingSvg
