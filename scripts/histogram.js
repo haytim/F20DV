@@ -1,10 +1,6 @@
 const dataFile = "/data/likelihood_of_moving_by_age.json";
 
 d3.json(dataFile).then(data => {
-
-   
-    //a.push(likelihood_of_moving_by_age[0].ages.find(d => d.age == "90+"))
-  
     const width = 960;
     const height = 500;
     const marginTop = 20;
@@ -61,15 +57,18 @@ d3.json(dataFile).then(data => {
             .attr("x", d => x(d.x0) + 1)
             .attr("width", d => x(d.x1) - x(d.x0) - 1)
             .transition()
+            .duration(transitionDuration)
             .attr("y", d => y(d3.sum(d, e => e.value)))
             .attr("height", d => y(0) - y(d3.sum(d, e => e.value)));
     
         // Add the x-axis and label.
         xAxisGroup.transition()
+            .duration(transitionDuration)
             .call(d3.axisBottom(x).ticks(width / 80).tickSizeOuter(0));
     
         // Add the y-axis and label, and remove the domain line.
         yAxisGroup.transition()
+            .duration(transitionDuration)
             .call(d3.axisLeft(y).ticks(height / 40))
             
     }

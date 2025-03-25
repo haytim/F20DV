@@ -1,5 +1,4 @@
 const migrationMatricesFile = "/data/internal_migration_matrices.json";
-const transitionDuration = 750;
 
 d3.json(migrationMatricesFile).then(data => {
     const selector = "#chord";

@@ -59,6 +59,8 @@ function regionScaleByCode(regionCode) {
     return regionScaleByName(regionCodeToName(regionCode))
 }
 
+const transitionDuration = 750;
+
 document.addEventListener("DOMContentLoaded", () => {
     sliderSet("#global-slider");
     sliderRegisterCallback(function () {
