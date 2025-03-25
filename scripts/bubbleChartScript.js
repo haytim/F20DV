@@ -19,9 +19,6 @@ const bubbleSvg = d3.select("#bubbleChart")
 d3.csv("data/housePriceIncome.csv").then(function(data) {
     function updateBubbleChart(year)
     {
-        //remove old chart
-        bubbleSvg.selectAll("*").remove(); //this may be causing bug
-
         const fData = data.filter(d => d.year === year);
 
         fData.sort((a, b) => b.population - a.population); //sort population in ascending order
