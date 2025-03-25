@@ -30,7 +30,7 @@ d3.json(migrationMatricesFile).then(data => {
         .attr("width", width)
         .attr("height", height)
         .attr("viewBox", [-width / 2, -height / 2, width, height])
-        //.attr("style", "max-width: 100%; height: auto; font: 10px sans-serif;");
+        .style("font-size", "10px");
 
     const group = svg.append("g");
     const ribbonGroup = svg.append("g");
