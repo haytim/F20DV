@@ -17,17 +17,22 @@ const projection2 = d3.geoMercator()
 //define path generator
 const path2 = d3.geoPath().projection(projection2);
 
+//these track zoom state and la data
 let zoomedRegion = null;
+let localAuthorityBorders = null;
 
 //load data and map
 Promise.all([
     d3.json("./data/rgn2024.json"), //regional data for topoJSON
     d3.json("./data/orderedRegionLAMigration.json"), //migration data for regions
     d3.json("./data/ltla2024.geojson") //local authority data for the boorders when zoomed
-]).then(([regionTopo, data]) => {
+]).then(([regionTopo, data, laGeoData]) => {
 
     //get regions data from the topoJSON file
     const regions = topojson.feature(regionTopo, regionTopo.objects.rgn);
+
+    //local authority data
+    localAuthorityBorders = laGeoData;
 
     //convert data to an easy lookup format
     const dataMap = {};
@@ -47,8 +52,13 @@ Promise.all([
     const minValue = -20000; 
     const maxValue = 40000; 
 
+    //set min max for las
+    const laMinValue = -927;
+    const laMaxValue = 3500;
+
     //define color scale (pink for negative, green for positive)
     const colorScale = d3.scaleDiverging([minValue, 0, maxValue], d3.interpolatePiYG);
+    const laColorScale = d3.scaleDiverging([laMinValue, 0, laMaxValue], d3.interpolatePiYG);
 
     //function to update map based on selected year
     function updateMap(year) {
@@ -74,9 +84,10 @@ Promise.all([
                         .duration(750)
                         .call(resetZoom); //reset zoom
                 } else {
-                    //zoom into the clicked region
+                    //zoom into the clicked region and render local authorities
                     zoomedRegion = clickedRegion;
                     zoomToRegion(d);
+                    renderLocalAuthorities(d, year);
                 }
             });
     }
@@ -101,13 +112,61 @@ Promise.all([
         g2.transition()
             .duration(750)
             .attr("transform", `translate(0,0) scale(1)`);
+
+        //clear local authority borders when zooming out
+        g2.selectAll(".local-authority").remove();
+    }
+
+    //function to render local authorities borders when a region is selected
+    function renderLocalAuthorities(region, year) {
+        const regionName = region.properties.areanm;
+        
+        //get local authority migration data and codes
+        const localAuthorities = data[regionName]?.["Local Authorities"] || [];
+        const localAuthorityCodes = localAuthorities.map(la => la["Area Code"]);
+
+        //filter the local authority borders using the area codes
+        const filteredLAs = localAuthorityBorders.features.filter(feature =>
+            localAuthorityCodes.includes(feature.properties.areacd)
+        );
+
+        console.log(filteredLAs);
+
+        g2.selectAll(".local-authority")
+            .data(filteredLAs)
+            .join("path")
+            .attr("class", "local-authority")
+            .attr("d", path2)
+            .style("stroke", "#999")
+            .style("stroke-width", "0.5px")
+            .style("fill", d => {
+                const laCode = d.properties.areacd;
+                const laData = localAuthorities.find(la => la["Area Code"] === laCode);
+                const value = parseFloat(laData?.["Net Migration"]?.[year] || 0);
+                return laColorScale(value);
+            })
+            .on("click", function () {
+                // Unzoom when clicking on an LA
+                zoomedRegion = null;
+                resetZoom(); // Reset zoom state
+            });
     }
 
     //initial map rendering
     updateMap(sliderCurrentValue());
 
     sliderRegisterCallback(function () {
-        updateMap(this.value);
+        const selectedYear = this.value;
+        updateMap(selectedYear);
+        //if a region is zoomed in re-render the LAs for that region
+        if (zoomedRegion) {
+            const zoomedRegionData = regions.features.find(
+                feature => feature.properties.areanm === zoomedRegion
+            );
+            if (zoomedRegionData) {
+                renderLocalAuthorities(zoomedRegionData, selectedYear);
+            }
+        }
     });
 
 });
