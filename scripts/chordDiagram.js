@@ -1,4 +1,5 @@
 const migrationMatricesFile = "/data/internal_migration_matrices.json";
+const transitionDuration = 750;
 
 d3.json(migrationMatricesFile).then(data => {
     const selector = "#chord";
@@ -59,9 +60,11 @@ d3.json(migrationMatricesFile).then(data => {
             .classed("chord-groups", true)
             .style("fill", d => colorScale(d.index))
             .style("stroke", "white")
-            .attr("d", arc)
             .on("mouseover", fade(.1))
-            .on("mouseout", fade(1));
+            .on("mouseout", fade(1))
+            .transition()
+            .duration(transitionDuration)
+            .attr("d", arc);
 
         arcs.select("title")
             .text(d => `${indexToName(d.index)}\n${d.value.toLocaleString(navigator.language)} out`)
@@ -88,6 +91,9 @@ d3.json(migrationMatricesFile).then(data => {
                 }
             )
             .classed("tick", true)
+            
+        ticks.transition()
+            .duration(transitionDuration)
             .attr("transform", d => `rotate(${d.angle * 180 / Math.PI - 90}) translate(${outerRadius},0)`);            
         
         ticks.filter(d => d.value % majorTickStep === 0)
@@ -111,11 +117,14 @@ d3.json(migrationMatricesFile).then(data => {
                 }
             )
             .classed("ribbon", true)
-            .attr("d", ribbon)
             .style("mix-blend-mode", "multiply")
             .style("stroke", "white")
             .attr("fill", d => colorScale(d.target.index))
-            .select("title")
+            .transition()
+            .duration(transitionDuration)
+            .attr("d", ribbon);
+        
+        ribbonGroup.select("title")
             .text(d => `${d.source.value.toLocaleString(navigator.language)} ${indexToName(d.source.index)} → ${indexToName(d.target.index)}${d.source.index !== d.target.index ? `\n${d.target.value.toLocaleString(navigator.language)} ${indexToName(d.target.index)} → ${indexToName(d.source.index)}` : ``}`);
     }
 
