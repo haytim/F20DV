@@ -141,18 +141,20 @@ d3.csv("data/housePriceIncome.csv").then(function(data) {
             .domain([d3.min(fData, d=>d.population), d3.max(fData, d=>d.population)])
             .range([5, 50]); //maybe modify bubble size
 
+        bubblesGroup.selectAll("circle")
             .data(fData)
-            .enter()
-            .append("circle")
-            .attr("cx", d => x(d.avg_income)) //x axis is average income
-            .attr("cy", d => y(d.avg_housePrice)) //y axis is average house price
-            .attr("r", d => z(d.population)) //bubble size is population
+            .join("circle")
             .style("fill", d => regionScaleByName(d.countryRegionName))
             .style("opacity", 0.7)
             .attr("stroke", "black")
             .on("mouseover", showttip)
             .on("mousemove", movettip)
-            .on("mouseleave", hidettip);
+            .on("mouseleave", hidettip)
+            .transition()
+            .duration(transitionDuration)
+            .attr("cx", d => x(d.avg_income)) //x axis is average income
+            .attr("cy", d => y(d.avg_housePrice)) //y axis is average house price
+            .attr("r", d => z(d.population)); //bubble size is population
             
             //------bubble legend------//
             
