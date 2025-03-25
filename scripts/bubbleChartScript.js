@@ -19,8 +19,6 @@ const bubbleSvg = d3.select("#bubbleChart")
 d3.csv("data/housePriceIncome.csv").then(function(data) {
     function updateBubbleChart(year)
     {
-
-        console.log(year);
         //remove old chart
         bubbleSvg.selectAll("*").remove(); //this may be causing bug
 
