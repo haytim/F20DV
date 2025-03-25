@@ -50,10 +50,8 @@ Promise.all([
         }
     });
 
-    //determine the range dynamically from data
-    const allValues = data.flatMap(d => Object.values(d).slice(3).map(Number)); //extract all numeric values
-    //set min and max values based on quantiles (changed max value to a set value as it was a little broken)
-    const minValue = d3.quantile(allValues, 0.01); 
+    //remvoed minvalue as a value from a quantile calculation, just set it to the value as it removes extra calculation
+    const minValue = -927;
     const maxValue = 3500; 
 
     //define color scale (pink for negative, green for positive)
