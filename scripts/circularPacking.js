@@ -11,6 +11,8 @@ const packingSvg = d3.select("#packing")
 // load CSV data for population by region
 d3.csv("/data/populationByRegion.csv").then(function(data) {
 
+  let simulation; // defining global simulation for accessibility
+
   // extracting area name, numeric population, and region info
   function updatePacking(year) {
     // Process data for the selected year
@@ -91,8 +93,10 @@ d3.csv("/data/populationByRegion.csv").then(function(data) {
       .on("mouseleave", mouseleave)
       .call(drag);  // Enable dragging of circles
 
+  if (simulation) simulation.stop(); // removing old simulation
+
   // force simulation for naturally arranging the circles
-  const simulation = d3.forceSimulation()
+  simulation = d3.forceSimulation()
     .force("center", d3.forceCenter(packingWidth / 1.5, packingHeight / 2.5)) // note that I have adjusted values to 1.5 & 2.5 opposed to standard 2
     .force("charge", d3.forceManyBody().strength(0.1))
     .force("collide", d3.forceCollide().radius(d => size(d.value) + 3).iterations(1));
