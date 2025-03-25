@@ -140,7 +140,6 @@ d3.json(migrationMatricesFile).then(data => {
     }
 
     sliderRegisterCallback(function() {
-        console.log("chord", Number(this.value));
         drawChordDiagram(Number(this.value));
     });
 })
