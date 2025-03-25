@@ -1,3 +1,6 @@
+//tooltip for testing
+const tooltip = d3.select("#tooltip");
+
 //set up SVG dimensions
 const w = 800, h = 1170;
 
@@ -44,7 +47,19 @@ Promise.all([
                     year,
                     typeof value === "string" ? parseFloat(value.replace(/,/g, "")) : value
                 ])
-            )
+            ),
+            //also parse Local Authorities data within the region to remove the commmmasssss
+            "Local Authorities": details["Local Authorities"].map(la => {
+                return {
+                    ...la,
+                    "Net Migration": Object.fromEntries(
+                        Object.entries(la["Net Migration"]).map(([year, value]) => [
+                            year,
+                            typeof value === "string" ? parseFloat(value.replace(/,/g, "")) : value
+                        ])
+                    )
+                };
+            })
         };
     });
 
@@ -73,6 +88,25 @@ Promise.all([
                 const regionName = d.properties.areanm;
                 const value = parseFloat(dataMap[regionName]?.["Net Migration"][year] || 0);
                 return colorScale(value);
+            })
+            .on("mouseover", function (event, d) {
+                const regionName = d.properties.areanm;
+                const value = parseFloat(dataMap[regionName]?.["Net Migration"][year] || 0);
+                
+                tooltip
+                    .style("display", "block")
+                    .html(
+                        `<strong>Region:</strong> ${regionName}<br>
+                         <strong>Net Migration:</strong> ${value.toLocaleString()}`
+                    );
+            })
+            .on("mousemove", function (event) {
+                tooltip
+                    .style("left", `${event.pageX + 10}px`)
+                    .style("top", `${event.pageY + 10}px`);
+            })
+            .on("mouseout", function () {
+                tooltip.style("display", "none");
             })
             .on("click", function (event, d) {
                 const clickedRegion = d.properties.areanm;
@@ -122,7 +156,7 @@ Promise.all([
         const regionName = region.properties.areanm;
         
         //get local authority migration data and codes
-        const localAuthorities = data[regionName]?.["Local Authorities"] || [];
+        const localAuthorities = dataMap[regionName]?.["Local Authorities"] || [];
         const localAuthorityCodes = localAuthorities.map(la => la["Area Code"]);
 
         //filter the local authority borders using the area codes
@@ -130,7 +164,6 @@ Promise.all([
             localAuthorityCodes.includes(feature.properties.areacd)
         );
 
-        console.log(filteredLAs);
 
         g2.selectAll(".local-authority")
             .data(filteredLAs)
@@ -145,10 +178,31 @@ Promise.all([
                 const value = parseFloat(laData?.["Net Migration"]?.[year] || 0);
                 return laColorScale(value);
             })
+            .on("mouseover", function (event, d) {
+                const laCode = d.properties.areacd;
+                const laData = localAuthorities.find(la => la["Area Code"] === laCode);
+                const laName = laData?.["Area Name"] || "Unknown";
+                const value = parseFloat(laData?.["Net Migration"]?.[year] || 0);
+                
+                tooltip
+                    .style("display", "block")
+                    .html(
+                        `<strong>Local Authority:</strong> ${laName}<br>
+                         <strong>Net Migration:</strong> ${value.toLocaleString()}`
+                    );
+            })
+            .on("mousemove", function (event) {
+                tooltip
+                    .style("left", `${event.pageX + 10}px`)
+                    .style("top", `${event.pageY + 10}px`);
+            })
+            .on("mouseout", function () {
+                tooltip.style("display", "none");
+            })
             .on("click", function () {
-                // Unzoom when clicking on an LA
+                //unzoom when clicking on an LA
                 zoomedRegion = null;
-                resetZoom(); // Reset zoom state
+                resetZoom(); //reset zoom state
             });
     }
 
