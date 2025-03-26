@@ -29,16 +29,15 @@
     <div>
         <h2>Regions Migration Over Time</h2>
         <svg id="regions-map"></svg>
+        <div id="info-box" style="position: absolute; right: 0; top: 0; width: 300px; height: 100%; background-color: #ffffff; border-left: 1px solid #ccc; padding: 10px; display: none; overflow-y: auto;">
+            <button id="close-box" style="margin-bottom: 10px;">Close</button>
+            <h3 id="region-title"></h3>
+            <ul id="industry-list" style="list-style: none; padding: 0; color: black;"></ul>
+        </div>
     </div>
     <div id="tooltip" style="position: absolute; pointer-events: none; background: white; padding: 5px; border: 1px solid #ccc; border-radius: 5px; display: none;"></div>
-
-    <!-- LAs Map -->
-    <div>
-        <h2>Local Authority Migration Over Time</h2>
-        <svg id="map"></svg>
-    </div>
     <script src="/scripts/regions-map.js"></script>
-    <script src="/scripts/map.js"></script>
+
 
     <!--The bubble chart-->
     <div>
