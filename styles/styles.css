@@ -136,3 +136,36 @@ circle.highlighted-bubble {
     stroke: rgb(255, 74, 240);
     stroke-width: 5px;
 }
+
+/*region map legend styles*/
+.color-legend {
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+  }
+  
+  .legend-title {
+    font-size: 14px;
+    font-weight: bold;
+    fill: #333;
+  }
+  
+  .legend-gradient {
+    stroke: #333;
+    stroke-width: 0.5px;
+    shape-rendering: crispEdges;
+  }
+  
+  .legend-axis .domain {
+    display: none;
+  }
+  
+  .legend-axis .tick line {
+    stroke: #333;
+    stroke-width: 1px;
+    shape-rendering: crispEdges;
+  }
+  
+  .legend-axis .tick text {
+    font-size: 11px;
+    fill: #333;
+  }

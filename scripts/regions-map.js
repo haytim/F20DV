@@ -1,3 +1,4 @@
+
 //tooltip for testing
 const tooltip = d3.select("#tooltip");
 
@@ -25,7 +26,81 @@ let zoomedRegion = null;
 let localAuthorityBorders = null;
 let industryData = null;
 
-
+//legend creation function
+function createDivergingLegend(colorScale, title, { 
+    width = 300, 
+    height = 40,
+    marginTop = 20,
+    marginRight = 20,
+    ticks = 5,
+    tickFormat = d3.format(",.0f"),
+  } = {}) {
+    //create legend container
+    const legend = svg2.append("g")
+      .attr("class", "color-legend")
+      .attr("transform", `translate(${w - width - marginRight},${marginTop})`);
+  
+    //add title
+    legend.append("text")
+      .attr("class", "legend-title")
+      .attr("x", width / 2)
+      .attr("y", 0)
+      .attr("text-anchor", "middle")
+      .text(title);
+  
+    //create gradient
+    const defs = svg2.append("defs");
+    const gradientId = "legend-gradient"
+    const gradient = defs.append("linearGradient")
+      .attr("id", gradientId)
+      .attr("x1", "0%")
+      .attr("x2", "100%");
+  
+    //add gradient stops (5 stops for smooth transition)
+    const [min, mid, max] = colorScale.domain();
+    const stops = [
+      { offset: "0%", value: min },
+      { offset: "25%", value: min + (mid - min) * 0.5 },
+      { offset: "50%", value: mid },
+      { offset: "75%", value: mid + (max - mid) * 0.5 },
+      { offset: "100%", value: max }
+    ];
+  
+    stops.forEach(stop => {
+        gradient.append("stop")
+          .attr("offset", stop.offset)
+          .attr("stop-color", colorScale(stop.value));
+      });
+  
+    //add gradient bar
+    legend.append("rect")
+      .attr("class", "legend-gradient")
+      .attr("x", 0)
+      .attr("y", 20)
+      .attr("width", width)
+      .attr("height", 12)
+      .style("fill", `url(#${gradientId})`);
+  
+    //create scale for axis
+    const xScale = d3.scaleLinear()
+      .domain([min, max])
+      .range([0, width]);
+  
+    //add axis
+    const tickValues = Array.from({length: ticks}, (_, i) => 
+      min + (max - min) * (i / (ticks - 1))
+    );
+  
+    const axis = d3.axisBottom(xScale)
+      .tickValues(tickValues)
+      .tickFormat(tickFormat)
+      .tickSize(6);
+  
+    legend.append("g")
+      .attr("class", "legend-axis")
+      .attr("transform", `translate(0,32)`)
+      .call(axis);
+  }
 
 //load data and map
 Promise.all([
@@ -46,6 +121,15 @@ Promise.all([
                 .map(([year, value]) => [year, parseFloat(value.replace(/,/g, ""))]) //parse numbers
         )
     }));
+
+    const colorScaleLeg = d3.scaleDiverging([-200000, 0, 200000], d3.interpolatePiYG);
+      
+    //create the legend
+    createDivergingLegend(colorScaleLeg, "Net Migration", {
+        width: 250,
+        ticks: 5,
+        tickFormat: d => d3.format("+,.0f")(d)
+    });
 
     //get regions data from the topoJSON file
     const regions = topojson.feature(regionTopo, regionTopo.objects.rgn);
@@ -132,7 +216,7 @@ Promise.all([
                 const clickedRegion = d.properties.areanm;
                 //console.log(clickedRegion);
 
-                //custom event when a region is clicked
+                //custom event when a region is clicked for bidirectional interaction with the bubble chart
                 const regionSelectedEvent = new CustomEvent('regionSelected', {
                     detail: { 
                         regionName: clickedRegion,
@@ -148,7 +232,7 @@ Promise.all([
                     g2.transition()
                         .duration(750)
                         .call(resetZoom); //reset zoom
-                    hideInfoBox();
+                    hideInfoBox(); //hide the info box - currently not working I realised
                 } else {
                     //zoom into the clicked region and render local authorities
                     zoomedRegion = clickedRegion;
@@ -324,3 +408,5 @@ Promise.all([
 document.getElementById("close-box").addEventListener("click", () => {
     document.getElementById("info-box").style.display = "none";
 });
+
+
