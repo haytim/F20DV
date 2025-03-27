@@ -1,4 +1,4 @@
-const flowWidth = 800, flowHeight = 600;
+const flowWidth = 800, flowHeight = 1500;
 
 const flowSvg = d3.select("#flowMap")
     .attr("width", flowWidth)
@@ -10,7 +10,7 @@ const flowg = flowSvg.append("g");
 const flowProjection = d3.geoMercator()
     .center([-2, 54])  //center over the UK
     .scale(2500)       //adjust scale
-    .translate([width / 2, height / 2]);
+    .translate([flowWidth / 2, flowHeight / 2]);
 
 const flowPath = d3.geoPath().projection(flowProjection);
 
@@ -21,7 +21,36 @@ Promise.all([
 ]).then(([regionTopo, migrationData]) => {
 
     //get regions data from the topoJSON file
+    const regionCodes = migrationData[0].regions;
+    //console.log(regionCodes);
+    const numRegions = regionCodes.length;
+    let cumulativeMatrix = Array.from({ length: numRegions }, () => Array(numRegions).fill(0));
+
+     //aggregate all yearly matrices into cumulativeMatrix
+     migrationData.forEach(({ matrix }) => {
+        for (let i = 0; i < numRegions; i++) {
+            for (let j = 0; j < numRegions; j++) {
+                cumulativeMatrix[i][j] += matrix[i][j];
+            }
+        }
+    });
+
+    //console.log(cumulativeMatrix);
+
+
+    //regions features
     const regions = topojson.feature(regionTopo, regionTopo.objects.rgn);
+    //console.log(regions);
+
+    //compute region centroids for flow connections
+    const centroids = {};
+    regions.features.forEach(d => {
+      const id = d.properties.areacd;
+      //console.log(id);
+      centroids[id] = flowPath.centroid(d);
+    });
+
+    //console.log(centroids);
 
     //draw uk regions
     flowg.selectAll(".region")
@@ -31,48 +60,24 @@ Promise.all([
         .attr("d", flowPath)
         .attr("fill", "#e0e0e0")
         .attr("stroke", "#aaa");
-    
-    //just use data from 2012 for now
-    const yearData = migrationData.find(d => d.year === 2012);
-    const regionCodes = yearData.regions;
-    const matrix = yearData.matrix;
-
-    //set region coordinates
-    // let regionCoordinates = {};
-    // regions.features.forEach(feature => {
-    //     const code = feature.properties.code;
-    //     regionCoordinates[code] = path.centroid(feature);
-    // });
-
-    const regionCoordinates = {
-        "E12000001": [-2.5, 54.5], 
-        "E12000002": [-1.5, 53.8], 
-        "E12000003": [-1.2, 52.6],
-        "E12000004": [-2.8, 52.4],
-        "E12000005": [-1.8, 51.3],
-        "E12000006": [-1.5, 50.8],
-        "E12000007": [-2.5, 50.5],
-        "E12000008": [-3.5, 52.1],
-        "E12000009": [-0.5, 51.3],
-        "W92000004": [-3.0, 52.3],
-        "S92000003": [-4.2, 56.0]  
-    };
-    //console.log(regionCoordinates);
-
 
     //create migration flow data by going through regions
     let migrationFlows = [];
-    for (let i = 0; i < regionCodes.length; i++) {
-        for (let j = 0; j < regionCodes.length; j++) {
-            if (i !== j && matrix[i][j] > 5000) {
-                migrationFlows.push({
-                    source: regionCodes[i],
-                    target: regionCodes[j],
-                    value: matrix[i][j]
-                });
-            }
-        }
-    }
+    regionCodes.forEach((sourceId, i) => {
+        regionCodes.forEach((targetId, j) => {
+          if (cumulativeMatrix[i][j] > 0 && centroids[sourceId] && centroids[targetId]) {
+            migrationFlows.push({
+              source: centroids[sourceId],
+              target: centroids[targetId],
+              weight: cumulativeMatrix[i][j]
+            });
+          }
+        });
+      });
+    //console.log(migrationFlows);
+    
+    //set a max weight based on the maximum weight of the flows
+    const maxWeight = d3.max(migrationFlows, d => d.weight);
 
     //set curved flow paths
     const curve = d3.line()
@@ -81,23 +86,26 @@ Promise.all([
         .y(d => d[1]);
 
     //group flows by destination
-    let groupedFlows = d3.group(migrationFlows, d => d.target);
+    //let groupedFlows = d3.group(migrationFlows, d => d.target);
     //console.log(groupedFlows);
 
     //draw flow lines
     flowg.selectAll(".flow-line")
-        .data(migrationFlows)
+        .data( migrationFlows) //.filter(d => d.weight > (0.05 * maxWeight))
         .enter().append("path")
+        .join("path")
+        .attr("class", "flow")
         .attr("d", d => {
-            const start = projection(regionCoordinates[d.source]);
-            const end = projection(regionCoordinates[d.target]);
-            if (!start || !end) return null;
-            const mid = [(start[0] + end[0]) / 2, (start[1] + end[1]) / 2 - 50];
-
-            return curve([start, mid, end]); //draw curve
+          const points = [
+            d.source,
+            [(d.source[0] + d.target[0]) / 2, (d.source[1] + d.target[1]) / 2 - 20], //curve upward
+            d.target
+          ];
+          return curve(points);
         })
-        .attr("stroke", "green")
-        .attr("stroke-width", d => Math.sqrt(d.value) / 200) //scale thickness
-        .attr("fill", "none")
-        .attr("opacity", 0.7);
+        .attr("stroke", "green") //set flow line color to green
+        .attr("stroke-opacity", 0.7) //slight transparency
+        .attr("stroke-width", d => (d.weight / maxWeight) * 50) //scale line width by weight
+        .attr("stroke-linecap", "round")
+        .attr("fill", "none"); //ensure no fill for the paths
 });
