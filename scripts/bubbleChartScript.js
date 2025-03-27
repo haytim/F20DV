@@ -189,6 +189,20 @@ d3.csv("data/housePriceIncome.csv").then(function(data) {
             .classed("highlighted-bubble", true);
     });
 
+    // event listener to detect selections in packing chart
+    document.addEventListener('packingRegionSelected', function(e) {
+    const selectedRegion = e.detail.regionName;
+
+    // remove old bubble highlights
+    d3.selectAll("#bubbleChart circle")
+        .classed("highlighted-bubble", false);
+
+    // highlight matching bubbles
+    d3.selectAll("#bubbleChart circle")
+        .filter(d => d.countryRegionName === selectedRegion)
+        .classed("highlighted-bubble", true);
+});
+
     //init chart
     updateBubbleChart(sliderCurrentValue());
 

@@ -125,6 +125,80 @@ d3.csv("/data/populationByRegion.csv").then(function(data) {
     });
 
   simulation.force("collide", d3.forceCollide().radius(d => size(d.value) + 1).iterations(2));
+
+  // event listener to deetect region selections on the region map or bubble chart
+  document.addEventListener('bubbleSelected', highlightRegion);
+  document.addEventListener('regionSelected', highlightRegion);
+
+  // event handler to highlight a region matching one selected elsewhere
+  function highlightRegion(e) {
+      const selectedRegion = e.detail.regionName;
+
+      // reseting highlights
+      packingSvg.selectAll("circle")
+          .style("stroke-width", 1)
+          .style("stroke", "black")
+          .style("fill-opacity", 0.5);
+
+      // highlighting the matching region
+      packingSvg.selectAll("circle")
+          .filter(d => d.region === selectedRegion)
+          .style("stroke", "gold")
+          .style("stroke-width", 3)
+          .style("fill-opacity", 1);
+  }
+
+// function to reset circles back to the default appearance
+function resetCirclesToDefault() {
+  packingSvg.selectAll("circle")
+      .style("stroke", "none") // no border by default
+      .style("fill-opacity", 1)
+      .style("fill", d => regionScaleByName(d.region));
+}
+
+// tracking selected circle
+let selectedCircle = null;
+
+// selected circle functionality
+node.on("click", function(event, d) {
+  const clickedCircle = d3.select(this);
+  const isSelected = clickedCircle.classed("selected-circle");
+
+  if (!isSelected) {
+      // clear previous selection
+      packingSvg.selectAll("circle")
+          .classed("selected-circle", false)
+          .style("stroke", "none")
+          .style("fill-opacity", 0.5);
+
+      // select clicked circle
+      clickedCircle
+          .classed("selected-circle", true)
+          .style("stroke", "gold")
+          .style("stroke-width", 3)
+          .style("fill-opacity", 1);
+
+      selectedCircle = clickedCircle;
+
+      // broadcast selection event 
+      const packingRegionSelectedEvent = new CustomEvent('packingRegionSelected', {
+          detail: { regionName: d.region, year: sliderCurrentValue() }
+      });
+      document.dispatchEvent(packingRegionSelectedEvent);
+
+  } else {
+      // deselect if it was already selected
+      selectedCircle = null;
+      resetCirclesToDefault(); // reset circle style
+
+      // braodcast deselection event
+      const packingRegionDeselectedEvent = new CustomEvent('packingRegionDeselected', {
+          detail: { regionName: d.region, year: sliderCurrentValue() }
+      });
+      document.dispatchEvent(packingRegionDeselectedEvent);
+  }
+});
+
 }
   // dragging functionality
   function dragstarted(event, d) {
