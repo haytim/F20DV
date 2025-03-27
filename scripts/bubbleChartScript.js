@@ -20,6 +20,60 @@ const bubbleSvg = d3.select("#bubbleChart")
     .append("g")
     .attr("transform","translate(" + margins.left + "," + margins.top + ")");
 
+function generateSizeLegend(parent, scale, n=3) {
+    const xLabel = 80;
+    const domain = scale.domain();
+    const niceDomain = d3.nice(domain[0], domain[1], n);
+    const circles = d3.ticks(niceDomain[0], niceDomain[1], n);
+    circles.shift();
+    circles.sort((a, b) => b - a);
+
+    const steps = d3.tickStep(niceDomain[0], niceDomain[1], n);
+    const format = d3.formatPrefix(",.0", steps);
+
+    const container = parent.datum(circles)
+        .join("g")
+    
+    container.transition()
+        .duration(transitionDuration)
+        .attr("transform", `translate(${scale(niceDomain[1])},${2*scale(niceDomain[1])})`);
+    
+    container.selectAll("circle")
+        .data(circles)
+        .join("circle")
+        .style("fill", "gray")
+        .style("fill-opacity", 0.3)
+        .attr("stroke", "black")
+        .attr("stroke-width", 1)
+        .transition()
+        .duration(transitionDuration)
+        .attr("r", d => scale(d))
+        .attr("cy", d => -scale(d));
+
+    container.selectAll("line")
+        .data(circles)
+        .join("line")
+        .style('stroke', 'black')
+        .style('stroke-dasharray', ('2,2'))
+        .transition()
+        .duration(transitionDuration)
+        .attr("x1", scale)
+        .attr("y1", d => -scale(d))
+        .attr("x2", xLabel)
+        .attr("y2", d => -scale(d))
+        
+    container.selectAll("text")
+        .data(circles)
+        .join("text")
+        .attr("font-size", 12)
+        .attr("dy", "0.32em")
+        .transition()
+        .duration(transitionDuration)
+        .attr("x", xLabel + 3)
+        .attr("y", d => -scale(d))
+        .text(d => `${format(d)} people`)
+}
+
 d3.csv("data/housePriceIncome.csv").then(function(data) {
     const xAxisGroup = bubbleSvg.append("g").attr("transform","translate(0,"+bubbleHeight+")");
     const yAxisGroup = bubbleSvg.append("g");
@@ -112,7 +166,9 @@ d3.csv("data/housePriceIncome.csv").then(function(data) {
             .style("font-size", "12px")
             .text(d => d.name);
 
-    const bubblesGroup = bubbleSvg.append('g');
+    const bubblesGroup = bubbleSvg.append('g').classed("bubbles", true);
+
+    const sizeLegendGroup = bubbleSvg.append("g").attr("transform", "translate(600, 845)").append("g");
 
     function updateBubbleChart(year)
     {
@@ -139,6 +195,8 @@ d3.csv("data/housePriceIncome.csv").then(function(data) {
         const z = d3.scaleLinear()
             .domain([d3.min(fData, d=>d.population), d3.max(fData, d=>d.population)])
             .range([5, 50]); //maybe modify bubble size
+
+        generateSizeLegend(sizeLegendGroup, z);
 
         bubblesGroup.selectAll("circle")
             .data(fData)
@@ -184,6 +242,8 @@ d3.csv("data/housePriceIncome.csv").then(function(data) {
         d3.selectAll("circle")
             .filter(d => d.countryRegionName === e.detail.regionName)
             .classed("highlighted-bubble", true);
+
+            
     });
 
     // event listener to detect selections in packing chart
