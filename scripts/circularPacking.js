@@ -1,6 +1,6 @@
 // set dimensions for the graph
 const packingWidth = 800;
-const packingHeight = 1400;
+const packingHeight = 1170;
 
 // append an SVG container to the element with ID "packing"
 const packingSvg = d3.select("#packing")
@@ -10,8 +10,6 @@ const packingSvg = d3.select("#packing")
 
 // load CSV data for population by region
 d3.csv("/data/populationByRegion.csv").then(function(data) {
-
-  let simulation; // defining global simulation for accessibility
 
   // approximate positions for regions, loosely based on their geographic position on the UK map
   const regionClusterPositions = {
@@ -28,37 +26,6 @@ d3.csv("/data/populationByRegion.csv").then(function(data) {
     "Wales": [packingWidth / 2.8, packingHeight / 1.9]
   };
 
-  // extracting area name, numeric population, and region info
-  function updatePacking(year) {
-    // process data for the selected year
-    const processedData = data.map(d => {
-      const [x, y] = regionClusterPositions[d.region] || [packingWidth / 2, packingHeight / 2]; // determining region position for clustering
-      return {
-        key: d.areaName,
-        value: +d[year].replace(/,/g, ""),
-        region: d.region,
-        x: x,
-        y: y
-      };
-    });
-/*
-    // create a color scale based on  regions
-    const regions = Array.from(new Set(processedData.map(d => d.region))); // getting unique regions
-    const color = d3.scaleOrdinal()
-      .domain(regions)
-      .range(d3.schemeSet3.slice(0, regions.length)); // maps each region to a color
-      // .range(d3.quantize(d3.interpolatePiYG, regions.length)); colour scheme for piyg (may or may not use)
-*/
-    // assigns colours to each unique region
-    const color = regionScaleByName;
-
-    // defines circle size based on population
-    const size = d3.scaleLinear()
-      .domain([0, d3.max(processedData, d => d.value)])
-      .range([7, 55]);
-
-    // removes existing circles on the chart when updated
-    packingSvg.selectAll("circle").remove();
 
     // styling onhover tooltip data
     const Tooltip = d3.select("#packing")
@@ -94,39 +61,75 @@ d3.csv("/data/populationByRegion.csv").then(function(data) {
       .on("drag", dragged)
       .on("end", dragended);
 
-    // creating circles for each data point
-    const node = packingSvg.append("g")
-      .selectAll("circle")
-      .data(processedData)
-      .join("circle")
-        .attr("r", d => size(d.value))
-        .style("fill", d => color(d.region)) // colouring circles by region
-        .style("fill-opacity", 1)
-        .attr("stroke", "black")
-        .style("stroke-width", 1)
-        .on("mouseover", mouseover)
-        .on("mousemove", mousemove)
-        .on("mouseleave", mouseleave)
-        .call(drag); // dragability
+  // force simulation for naturally arranging the circles
+  const simulation = d3.forceSimulation()
+    .force("x", d3.forceX(d => d.x).strength(0.05))
+    .force("y", d3.forceY(d => d.y).strength(0.05))
+    .alpha(0.5)
+    .alphaDecay(0.05);
 
-    if (simulation) simulation.stop(); // removing old simulation on update to remove duplicates
+  // process constant data
+  let processedData = data.map(d => {
+    const [x, y] = regionClusterPositions[d.region] || [packingWidth / 2, packingHeight / 2]; // determining region position for clustering
+    return {
+      key: d.areaName,
+      value: +d[sliderCurrentValue()].replace(/,/g, ""),
+      region: d.region,
+      x: x,
+      y: y
+    };
+  });
 
-    // force simulation for naturally arranging the circles
-    simulation = d3.forceSimulation(processedData)
-      .force("x", d3.forceX(d => d.x).strength(0.05))
-      .force("y", d3.forceY(d => d.y).strength(0.05))
-      .force("collide", d3.forceCollide().radius(d => size(d.value) + 1).iterations(2))
-      .alpha(0.5)
-      .alphaDecay(0.05)
-      .on("tick", () => {
-        node.attr("cx", d => d.x)
-            .attr("cy", d => d.y);
-      })
-      .on("end", () => {
-        simulation.stop();
-      });
-  }
+  // extracting area name, numeric population, and region info
+  function updatePacking(year) {
+    simulation.restart().alphaTarget(0.2);
 
+  // process data for the selected year
+  processedData = processedData.map((d, index) => {
+    d.value = +data[index][year].replace(/,/g, "");
+    if (d.key !== data[index].areaName) console.warn("indices dont match");
+    return d;
+  });  
+
+/*
+  // create a color scale based on  regions
+  const regions = Array.from(new Set(processedData.map(d => d.region))); // getting unique regions
+  const color = d3.scaleOrdinal()
+    .domain(regions)
+    .range(d3.schemeSet3.slice(0, regions.length)); // maps each region to a color
+    // .range(d3.quantize(d3.interpolatePiYG, regions.length)); colour scheme for piyg (may or may not use)
+*/
+
+  // assigns colours to each unique region
+  const color = regionScaleByName;
+
+  // defines circle size based on population
+  const size = d3.scaleLinear()
+      .domain([0, d3.max(processedData, d => d.value)])
+      .range([7, 55]);
+
+  // creating circles for each data point
+  const node = packingSvg
+    .selectAll("circle")
+    .data(processedData)
+    .join("circle")
+      .attr("r", d => size(d.value))
+      .style("fill", d => color(d.region))  // Color circles by region
+      .style("fill-opacity", 1)
+      .attr("stroke", "black")
+      .style("stroke-width", 1)
+      .on("mouseover", mouseover)
+      .on("mousemove", mousemove)
+      .on("mouseleave", mouseleave)
+      .call(drag);  // Enable dragging of circles
+
+    simulation.nodes(processedData).on("tick", function() {
+      node.attr("cx", d => d.x)
+        .attr("cy", d => d.y);
+    });
+
+  simulation.force("collide", d3.forceCollide().radius(d => size(d.value) + 1).iterations(2));
+}
   // dragging functionality
   function dragstarted(event, d) {
     if (!event.active) simulation.alphaTarget(0.2).restart(); // activating simulation
