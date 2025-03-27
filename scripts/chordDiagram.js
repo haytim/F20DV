@@ -35,7 +35,7 @@ d3.json(migrationMatricesFile).then(data => {
     const ribbonGroup = svg.append("g");
     ribbonGroup.style("isolation", "isolate");
 
-    drawChordDiagram(2012);
+    drawChordDiagram(+sliderCurrentValue());
 
     function drawChordDiagram(year) {
         const {matrix} = data.find(d => d.year === year);
@@ -65,8 +65,14 @@ d3.json(migrationMatricesFile).then(data => {
             .duration(transitionDuration)
             .attr("d", arc);
 
+        const countIn = group => {
+            let a = d3.sum(chords.filter(d => d.source.index == group.index), d => d.target.value);
+            let b = d3.sum(chords.filter(d => d.target.index == group.index), d => d.source.value);
+            return a + b;
+        };
+
         arcs.select("title")
-            .text(d => `${indexToName(d.index)}\n${d.value.toLocaleString(navigator.language)} out`)
+            .text(d => `${indexToName(d.index)}\n${countIn(d).toLocaleString(navigator.language)} in\n${d.value.toLocaleString(navigator.language)} out`)
 
         const tickGroups = group
             .selectAll(".tick-group")
@@ -123,7 +129,7 @@ d3.json(migrationMatricesFile).then(data => {
             .duration(transitionDuration)
             .attr("d", ribbon);
         
-        ribbonGroup.select("title")
+        ribbonGroup.selectAll("title")
             .text(d => `${d.source.value.toLocaleString(navigator.language)} ${indexToName(d.source.index)} → ${indexToName(d.target.index)}${d.source.index !== d.target.index ? `\n${d.target.value.toLocaleString(navigator.language)} ${indexToName(d.target.index)} → ${indexToName(d.source.index)}` : ``}`);
     }
 
