@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UK Map with D3.js</title>
+    <title>UK Internal Migration Dashboard</title>
     <script src="https://unpkg.com/topojson@3"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script> <!--Loading in colour scale-->
@@ -18,54 +18,59 @@
         <span>2012</span>
     </div>
 
-    <!-- histogram -->
-     <div>
-        <h2>Moving by Age</h2>
-        <svg id="histogram"></svg>
-     </div>
-     <script src="/scripts/histogram.js"></script>
+    <div class="dashboard-grid">
+        <!-- histogram -->
+        <div class="chart-container">
+            <h2>Moving by Age</h2>
+            <svg id="histogram"></svg>
+        </div>
 
-    <!-- Regions Map -->
-    <div>
-        <h2>Regions Migration Over Time</h2>
-        <svg id="regions-map"></svg>
-    </div>
+         <!-- Circular Packing -->
+         <div class="chart-container">
+            <h2>Population By Region</h2>
+            <div id="packing"></div>
+        </div>
 
-    <!-- LAs Map -->
-    <div>
-        <h2>Local Authority Migration Over Time</h2>
-        <svg id="map"></svg>
-    </div>
-    <script src="/scripts/regions-map.js"></script>
-    <script src="/scripts/map.js"></script>
+        <!-- Chord diagram -->
+        <div class="chart-container">
+            <h2>Chord diagram</h2>
+            <p>The outer arcs show where people who moved moved from, while the inner chords show where people who moved are moving to</p>
+            <div id="chord"></div>
+        </div>
 
-    <!--The bubble chart-->
-    <div>
-        <h2>House Price Deciles Compared To Income Deciles And Population Per Region</h2>
-        <div id="bubbleChart"></div>
-    </div>
-    <script src="/scripts/main.js"></script>
-    <script src="/scripts/bubbleChartScript.js"></script>
+        <!-- Flow Map -->
+        <div class="chart-container">
+            <h2>Flow Map</h2>
+            <svg id="flowMap"></svg>
+        </div>
+
+        <!-- Regions Map -->
+        <div class="chart-container">
+            <h2>Regions Migration Over Time</h2>
+            <svg id="regions-map"></svg>
+            <div id="info-box">
+                <button id="close-box" style="margin-bottom: 10px;">Close</button>
+                <h3 id="region-title"></h3>
+                <ul id="industry-list" style="list-style: none; padding: 0; color: black;"></ul>
+            </div>
+        </div>
+        
     
-    <!-- Circular Packing -->
-    <div>
-        <h2>Population By Region</h2>
-        <div id="packing"></div>
-    </div>
-    <script src="/scripts/circularPacking.js"></script>
-    <!-- Flow Map -->
-    <div>
-        <h2>Flow Map</h2>
-        <svg id="flowMap"></svg>
-    </div>
-    <script src="/scripts/flowMap.js"></script>
+        <!--The bubble chart-->
+        <div class="chart-container">
+            <h2>House Price Deciles Compared To Income Deciles And Population Per Region</h2>
+            <div id="bubbleChart"></div>
+        </div>
 
-    <!-- Chord diagram -->
-    <div>
-        <h2>Chord diagram</h2>
-        <p>The outer arcs show where people who moved moved from, while the inner chords show where people who moved are moving to</p>
-        <div id="chord"></div>
+        <div id="tooltip"></div>
+
+        <script src="/scripts/main.js"></script>
+        <script src="/scripts/bubbleChartScript.js"></script>
+        <script src="/scripts/circularPacking.js"></script>
+        <script src="/scripts/histogram.js"></script>
+        <script src="/scripts/flowMap.js"></script>
+        <script src="/scripts/chordDiagram.js"></script>
+        <script src="/scripts/regions-map.js"></script>
     </div>
-    <script src="/scripts/chordDiagram.js"></script>
 </body>
 </html>

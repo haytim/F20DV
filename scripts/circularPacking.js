@@ -11,58 +11,80 @@ const packingSvg = d3.select("#packing")
 // load CSV data for population by region
 d3.csv("/data/populationByRegion.csv").then(function(data) {
 
-
-  // displaying onhover data
-  const Tooltip = d3.select("#packing")
-  .append("div")
-  .style("opacity", 0)
-  .attr("class", "tooltip")
-  .style("background-color", "white")
-  .style("border", "solid 2px black")
-  .style("border-radius", "5px")
-  .style("padding", "5px")
-  .style("position", "absolute");
-
-  // displaying data tootip for onhover
-  const mouseover = function(event, d) {
-    Tooltip.style("opacity", 1); 
+  // approximate positions for regions, loosely based on their geographic position on the UK map
+  const regionClusterPositions = {
+    "Scotland": [packingWidth / 2, packingHeight / 5],
+    "North East": [packingWidth / 1.6, packingHeight / 3],
+    "North West": [packingWidth / 2.5, packingHeight / 3],
+    "Yorkshire and The Humber": [packingWidth / 1.8, packingHeight / 2.5],
+    "East Midlands": [packingWidth / 1.7, packingHeight / 2.1],
+    "West Midlands": [packingWidth / 2.2, packingHeight / 1.9],
+    "East": [packingWidth / 1.5, packingHeight / 1.7],
+    "London": [packingWidth / 1.6, packingHeight / 1.5],
+    "South East": [packingWidth / 1.4, packingHeight / 1.4],
+    "South West": [packingWidth / 2.2, packingHeight / 1.5],
+    "Wales": [packingWidth / 2.8, packingHeight / 1.9]
   };
 
-  // displaying data for the given circle
-  const mousemove = function(event, d) {
-    Tooltip.html(`<u>${d.key}</u><br>Population: ${d.value.toLocaleString()}<br>Region: ${d.region}`)
-      .style("left", (event.pageX + 10) + "px")
-      .style("top", (event.pageY - 10) + "px");
-  };
 
-  // hiding data tootip when no longer hovering
-  const mouseleave = function(event, d) {
-    Tooltip.style("opacity", 0); 
-  };
+    // styling onhover tooltip data
+    const Tooltip = d3.select("#packing")
+      .append("div")
+      .style("opacity", 0)
+      .attr("class", "tooltip")
+      .style("background-color", "white")
+      .style("border", "solid 2px black")
+      .style("border-radius", "5px")
+      .style("padding", "5px")
+      .style("position", "absolute");
 
-  // drag behaviour
-  const drag = d3.drag()
-    .on("start", dragstarted)
-    .on("drag", dragged)
-    .on("end", dragended);
+    // displaying data tootip for onhover
+    const mouseover = function(event, d) {
+      Tooltip.style("opacity", 1);
+    };
+
+    // displaying data for the given circle
+    const mousemove = function(event, d) {
+      Tooltip.html(`<u>${d.key}</u><br>Population: ${d.value.toLocaleString()}<br>Region: ${d.region}`)
+        .style("left", (event.pageX + 10) + "px")
+        .style("top", (event.pageY - 10) + "px");
+    };
+
+    // hiding data tootip when no longer hovering   
+    const mouseleave = function(event, d) {
+      Tooltip.style("opacity", 0);
+    };
+
+    // drag behaviour
+    const drag = d3.drag()
+      .on("start", dragstarted)
+      .on("drag", dragged)
+      .on("end", dragended);
 
   // force simulation for naturally arranging the circles
   const simulation = d3.forceSimulation()
-    .force("center", d3.forceCenter(packingWidth / 1.5, packingHeight / 2.5)) // note that I have adjusted values to 1.5 & 2.5 opposed to standard 2
-    .force("charge", d3.forceManyBody().strength(0.1));
+    .force("x", d3.forceX(d => d.x).strength(0.05))
+    .force("y", d3.forceY(d => d.y).strength(0.05))
+    .alpha(0.5)
+    .alphaDecay(0.05);
 
-
-  let processedData = data.map(d => ({
-    key: d.areaName,
-    value: +d[sliderCurrentValue()].replace(/,/g, ""), // Convert population to number
-    region: d.region
-  }));
+  // process constant data
+  let processedData = data.map(d => {
+    const [x, y] = regionClusterPositions[d.region] || [packingWidth / 2, packingHeight / 2]; // determining region position for clustering
+    return {
+      key: d.areaName,
+      value: +d[sliderCurrentValue()].replace(/,/g, ""),
+      region: d.region,
+      x: x,
+      y: y
+    };
+  });
 
   // extracting area name, numeric population, and region info
   function updatePacking(year) {
-    simulation.restart().alphaTarget(0.3);
+    simulation.restart().alphaTarget(0.2);
 
-  // Process data for the selected year
+  // process data for the selected year
   processedData = processedData.map((d, index) => {
     d.value = +data[index][year].replace(/,/g, "");
     if (d.key !== data[index].areaName) console.warn("indices dont match");
@@ -82,9 +104,9 @@ d3.csv("/data/populationByRegion.csv").then(function(data) {
   const color = regionScaleByName;
 
   // defines circle size based on population
-  const size = d3.scaleSqrt()
-    .domain([0, d3.max(processedData, d => d.value)])
-    .range([3, 40]);
+  const size = d3.scaleLinear()
+      .domain([0, d3.max(processedData, d => d.value)])
+      .range([7, 55]);
 
   // creating circles for each data point
   const node = packingSvg
@@ -106,19 +128,19 @@ d3.csv("/data/populationByRegion.csv").then(function(data) {
         .attr("cy", d => d.y);
     });
 
-  simulation.force("collide", d3.forceCollide().radius(d => size(d.value) + 3).iterations(1));
+  simulation.force("collide", d3.forceCollide().radius(d => size(d.value) + 1).iterations(2));
 }
   // dragging functionality
   function dragstarted(event, d) {
-    if (!event.active) simulation.alphaTarget(0.3).restart(); // activating simulation
+    if (!event.active) simulation.alphaTarget(0.2).restart(); // activating simulation
     d.fx = d.x;
     d.fy = d.y;
   }
 
   // updating position of circle during drag
   function dragged(event, d) {
-    d.fx = event.x; 
-    d.fy = event.y; 
+    d.fx = event.x;
+    d.fy = event.y;
   }
 
   function dragended(event, d) {
@@ -126,6 +148,7 @@ d3.csv("/data/populationByRegion.csv").then(function(data) {
     d.fx = null;
     d.fy = null;
   }
+
   // initialize packing with current slider value
   updatePacking(sliderCurrentValue());
 

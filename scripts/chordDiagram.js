@@ -1,5 +1,13 @@
 const migrationMatricesFile = "/data/internal_migration_matrices.json";
 
+function chordDiagramHighlightStart(regionCode) {
+    document.querySelector(`#chord-group-${regionCode}`)?.dispatchEvent(new Event("mouseover"))
+}
+
+function chordDiagramHighlightEnd(regionCode) {
+    document.querySelector(`#chord-group-${regionCode}`)?.dispatchEvent(new Event("mouseout"))
+}
+
 d3.json(migrationMatricesFile).then(data => {
     const selector = "#chord";
     const width = 700; const height = width;
@@ -35,7 +43,7 @@ d3.json(migrationMatricesFile).then(data => {
     const ribbonGroup = svg.append("g");
     ribbonGroup.style("isolation", "isolate");
 
-    drawChordDiagram(2012);
+    drawChordDiagram(+sliderCurrentValue());
 
     function drawChordDiagram(year) {
         const {matrix} = data.find(d => d.year === year);
@@ -53,20 +61,33 @@ d3.json(migrationMatricesFile).then(data => {
                 enter => {
                     const path = enter.append("path");
                     path.append("title");
+                    path.attr("id", d => `chord-group-${regions[d.index]}`)
                     return path;
                 }
             )
             .classed("chord-groups", true)
             .style("fill", d => colorScale(d.index))
             .style("stroke", "white")
-            .on("mouseover", fade(.1))
-            .on("mouseout", fade(1))
+            .on("mouseover", (event, group) => {
+                if (event.isTrusted) flowMapHighlightStart(regions[group.index]);
+                fade(0.1, group)
+            })
+            .on("mouseout", (event, group) => {
+                if (event.isTrusted) flowMapHighlightEnd(regions[group.index]);
+                fade(1, group)
+            })
             .transition()
             .duration(transitionDuration)
             .attr("d", arc);
 
+        const countIn = group => {
+            let a = d3.sum(chords.filter(d => d.source.index == group.index), d => d.target.value);
+            let b = d3.sum(chords.filter(d => d.target.index == group.index), d => d.source.value);
+            return a + b;
+        };
+
         arcs.select("title")
-            .text(d => `${indexToName(d.index)}\n${d.value.toLocaleString(navigator.language)} out`)
+            .text(d => `${indexToName(d.index)}\n${countIn(d).toLocaleString(navigator.language)} in\n${d.value.toLocaleString(navigator.language)} out`)
 
         const tickGroups = group
             .selectAll(".tick-group")
@@ -123,7 +144,7 @@ d3.json(migrationMatricesFile).then(data => {
             .duration(transitionDuration)
             .attr("d", ribbon);
         
-        ribbonGroup.select("title")
+        ribbonGroup.selectAll("title")
             .text(d => `${d.source.value.toLocaleString(navigator.language)} ${indexToName(d.source.index)} → ${indexToName(d.target.index)}${d.source.index !== d.target.index ? `\n${d.target.value.toLocaleString(navigator.language)} ${indexToName(d.target.index)} → ${indexToName(d.source.index)}` : ``}`);
     }
 
@@ -139,13 +160,12 @@ d3.json(migrationMatricesFile).then(data => {
         })
     }
 
-    function fade(opacity) {
-        return function (_, group) {
-            svg.selectAll(".ribbon")
-                .filter(d => d.source.index != group.index && d.target.index != group.index)
-                .transition()
-                .style("opacity", opacity);
-        };
+    function fade(opacity, group) {
+        svg.selectAll(".ribbon")
+            .filter(d => d.source.index != group.index && d.target.index != group.index)
+            .transition()
+            .duration(transitionDuration)
+            .style("opacity", opacity);
     }
 
     sliderRegisterCallback(function() {

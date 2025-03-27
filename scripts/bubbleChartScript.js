@@ -11,8 +11,8 @@ const bubbleHeight = 650 - margins.top - margins.bottom; //get height of graph
 
 const bubbleSvg = d3.select("#bubbleChart")
     .append("svg")
-    .attr("width", width + margins.left + margins.right)
-    .attr("height", height + margins.top + margins.bottom)
+    .attr("width", bubbleWidth + margins.left + margins.right)
+    .attr("height", bubbleHeight + margins.top + margins.bottom)
     .append("g")
     .attr("transform","translate(" + margins.left + "," + margins.top + ")");
 
