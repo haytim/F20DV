@@ -14,6 +14,15 @@ const flowProjection = d3.geoMercator()
 
 const flowPath = d3.geoPath().projection(flowProjection);
 
+
+function flowMapHighlightStart(regionCode) {
+    document.querySelector(`#flow-map-region-${regionCode}`)?.dispatchEvent(new Event("mouseover"))
+}
+
+function flowMapHighlightEnd(regionCode) {
+    document.querySelector(`#flow-map-region-${regionCode}`)?.dispatchEvent(new Event("mouseout"))
+}
+
 //load uk region topojson & migration data
 Promise.all([
     d3.json("./data/rgn2024.json"), //regional data for topoJSON
@@ -52,6 +61,14 @@ Promise.all([
 
     //console.log(centroids);
 
+    function fade(areaCode, opacity) {
+        flowg.selectAll(".flow")
+            .filter(d => d.sourceCode !== areaCode)
+            .transition()
+            .duration(transitionDuration)
+            .attr("opacity", opacity)
+    }
+
     //draw uk regions
     flowg.selectAll(".region")
         .data(regions.features)
@@ -59,8 +76,16 @@ Promise.all([
         .attr("class", "region")
         .attr("d", flowPath)
         .attr("fill", "#e0e0e0")
-        .attr("stroke", "#aaa");
-
+        .attr("stroke", "#aaa")
+        .attr("id", d => `flow-map-region-${d.properties.areacd}`)
+        .on("mouseover", (event, details) => {
+            if (event.isTrusted) chordDiagramHighlightStart(details.properties.areacd);
+            fade(details.properties.areacd, 0.1);
+        })
+        .on("mouseout", (event, details) => {
+            if (event.isTrusted) chordDiagramHighlightEnd(details.properties.areacd);
+            fade(details.properties.areacd, 1);
+        });
     //create migration flow data by going through regions
     let migrationFlows = [];
     regionCodes.forEach((sourceId, i) => {
@@ -69,6 +94,7 @@ Promise.all([
             migrationFlows.push({
               source: centroids[sourceId],
               target: centroids[targetId],
+              sourceCode: sourceId,
               weight: cumulativeMatrix[i][j]
             });
           }
@@ -90,9 +116,8 @@ Promise.all([
     //console.log(groupedFlows);
 
     //draw flow lines
-    flowg.selectAll(".flow-line")
+    flowg.selectAll(".flow")
         .data( migrationFlows) //.filter(d => d.weight > (0.05 * maxWeight))
-        .enter().append("path")
         .join("path")
         .attr("class", "flow")
         .attr("d", d => {
@@ -107,5 +132,6 @@ Promise.all([
         .attr("stroke-opacity", 0.7) //slight transparency
         .attr("stroke-width", d => (d.weight / maxWeight) * 50) //scale line width by weight
         .attr("stroke-linecap", "round")
+        .attr("opacity", 1)
         .attr("fill", "none"); //ensure no fill for the paths
 });

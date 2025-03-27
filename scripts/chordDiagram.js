@@ -1,5 +1,13 @@
 const migrationMatricesFile = "/data/internal_migration_matrices.json";
 
+function chordDiagramHighlightStart(regionCode) {
+    document.querySelector(`#chord-group-${regionCode}`)?.dispatchEvent(new Event("mouseover"))
+}
+
+function chordDiagramHighlightEnd(regionCode) {
+    document.querySelector(`#chord-group-${regionCode}`)?.dispatchEvent(new Event("mouseout"))
+}
+
 d3.json(migrationMatricesFile).then(data => {
     const selector = "#chord";
     const width = 700; const height = width;
@@ -53,14 +61,21 @@ d3.json(migrationMatricesFile).then(data => {
                 enter => {
                     const path = enter.append("path");
                     path.append("title");
+                    path.attr("id", d => `chord-group-${regions[d.index]}`)
                     return path;
                 }
             )
             .classed("chord-groups", true)
             .style("fill", d => colorScale(d.index))
             .style("stroke", "white")
-            .on("mouseover", fade(.1))
-            .on("mouseout", fade(1))
+            .on("mouseover", (event, group) => {
+                if (event.isTrusted) flowMapHighlightStart(regions[group.index]);
+                fade(0.1, group)
+            })
+            .on("mouseout", (event, group) => {
+                if (event.isTrusted) flowMapHighlightEnd(regions[group.index]);
+                fade(1, group)
+            })
             .transition()
             .duration(transitionDuration)
             .attr("d", arc);
@@ -145,13 +160,12 @@ d3.json(migrationMatricesFile).then(data => {
         })
     }
 
-    function fade(opacity) {
-        return function (_, group) {
-            svg.selectAll(".ribbon")
-                .filter(d => d.source.index != group.index && d.target.index != group.index)
-                .transition()
-                .style("opacity", opacity);
-        };
+    function fade(opacity, group) {
+        svg.selectAll(".ribbon")
+            .filter(d => d.source.index != group.index && d.target.index != group.index)
+            .transition()
+            .duration(transitionDuration)
+            .style("opacity", opacity);
     }
 
     sliderRegisterCallback(function() {
