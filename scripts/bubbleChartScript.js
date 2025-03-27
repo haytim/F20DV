@@ -172,9 +172,6 @@ d3.csv("data/housePriceIncome.csv").then(function(data) {
             .attr("cx", d => x(d.avg_income)) //x axis is average income
             .attr("cy", d => y(d.avg_housePrice)) //y axis is average house price
             .attr("r", d => z(d.population)); //bubble size is population
-            
-            //------bubble legend------//
-            
     }
 
     //listen for region selections from the map to highlight bubbles
