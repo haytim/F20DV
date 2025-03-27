@@ -20,10 +20,11 @@ const projection2 = d3.geoMercator()
 //define path generator
 const path2 = d3.geoPath().projection(projection2);
 
-//these track zoom state, la data, and industry data
+//these track zoom state, la data, industry data
 let zoomedRegion = null;
 let localAuthorityBorders = null;
 let industryData = null;
+
 
 
 //load data and map
@@ -129,6 +130,17 @@ Promise.all([
             //on click function to zoom into the region when clicked
             .on("click", function (event, d) {
                 const clickedRegion = d.properties.areanm;
+                //console.log(clickedRegion);
+
+                //custom event when a region is clicked
+                const regionSelectedEvent = new CustomEvent('regionSelected', {
+                    detail: { 
+                        regionName: clickedRegion,
+                        year: year
+                    }
+                });
+                document.dispatchEvent(regionSelectedEvent);
+                
                 //same logic as before just moved the zoom to region into a seperate function
                 if (zoomedRegion === clickedRegion) {
                     //if the clicked region is already zoomed in, reset zoom
@@ -265,6 +277,30 @@ Promise.all([
 
     //initial map rendering
     updateMap(sliderCurrentValue());
+
+    document.addEventListener('bubbleSelected', function(e) {
+        const selectedRegion = e.detail.regionName;
+        
+        //find the region feature in your GeoJSON data
+        const regionFeature = regions.features.find(
+            feature => feature.properties.areanm === selectedRegion
+        );
+        
+        if (regionFeature) {
+            //zoom to the selected region
+            zoomedRegion = selectedRegion;
+            zoomToRegion(regionFeature);
+            renderLocalAuthorities(regionFeature, e.detail.year || sliderCurrentValue());
+            updateInfoBox(selectedRegion, e.detail.year || sliderCurrentValue());
+            
+            //update the slider if year is different
+            if (e.detail.year && e.detail.year !== sliderCurrentValue()) {
+                document.getElementById("global-slider").value = e.detail.year;
+                document.querySelector("#slider-container span").textContent = e.detail.year;
+            }
+        }
+    });
+    
 
     sliderRegisterCallback(function () {
         const selectedYear = this.value;

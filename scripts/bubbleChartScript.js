@@ -1,13 +1,16 @@
 //giving the graph margins
 const margins = {
-    top: 10,
+    top: 300,
     right: 20,
     bottom:  0,
     left: 80
 };
 
+//track bubble selection
+let currentBubbles = null;
+
 const bubbleWidth = 800 - margins.left - margins.right; //get the width of graph
-const bubbleHeight = 650 - margins.top - margins.bottom; //get height of graph
+const bubbleHeight = 1050 - margins.top - margins.bottom; //get height of graph
 
 const bubbleSvg = d3.select("#bubbleChart")
     .append("svg")
@@ -152,14 +155,45 @@ d3.csv("data/housePriceIncome.csv").then(function(data) {
             .attr("r", d => z(d.population)) //bubble size is population
             .style("fill", d => regionScaleByName(d.countryRegionName))
             .style("opacity", 0.7)
-            .attr("stroke", "black")
             .on("mouseover", showttip)
             .on("mousemove", movettip)
-            .on("mouseleave", hidettip);
+            .on("mouseleave", hidettip)
+            .on("click", function(event, d) {
+                //remove highlights from all bubbles
+                d3.selectAll("circle")
+                    .classed("highlighted-bubble", false);
+            
+                //highlight clicked bubble
+                d3.select(this)
+                    .classed("highlighted-bubble", true);
+                
+                //dispatch zoom event when bubble is clicked
+                const bubbleSelectedEvent = new CustomEvent('bubbleSelected', {
+                    detail: { 
+                        regionName: d.countryRegionName,
+                        year: year
+                    }
+                });
+                document.dispatchEvent(bubbleSelectedEvent);
+                
+            });
             
             //------bubble legend------//
             
     }
+
+    //listen for region selections from the map to highlight bubbles
+    document.addEventListener('regionSelected', function(e) {
+        //remove highlights from all bubbles
+        d3.selectAll("circle")
+            .classed("highlighted-bubble", false);
+
+        //highlight clicked bubble
+        d3.selectAll("circle")
+            .filter(d => d.countryRegionName === e.detail.regionName)
+            .classed("highlighted-bubble", true);
+    });
+
     //init chart
     updateBubbleChart(sliderCurrentValue());
 
