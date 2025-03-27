@@ -2,7 +2,7 @@
 const tooltip = d3.select("#tooltip");
 
 //set up SVG dimensions
-const w = 800, h = 1170;
+const w = 800, h = 1500;
 
 //create SVG element
 const svg2 = d3.select("#regions-map")
