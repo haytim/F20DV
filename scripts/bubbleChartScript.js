@@ -2,8 +2,8 @@
 const margins = {
     top: 20,
     right: 20,
-    bottom:  20,
-    left: 20
+    bottom: 200,
+    left: 100
 };
 
 //track bubble selection
