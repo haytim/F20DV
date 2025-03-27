@@ -1,50 +1,82 @@
 //giving the graph margins
 const margins = {
-    top: 300,
+    top: 20,
     right: 20,
-    bottom:  0,
-    left: 80
+    bottom: 200,
+    left: 100
 };
 
 //track bubble selection
 let currentBubbles = null;
 
-const bubbleWidth = 800 - margins.left - margins.right; //get the width of graph
-const bubbleHeight = 1050 - margins.top - margins.bottom; //get height of graph
+const bubbleWidth = 1000 - margins.left - margins.right; //get the width of graph
+const bubbleHeight = 1000 - margins.top - margins.bottom; //get height of graph
 
 const bubbleSvg = d3.select("#bubbleChart")
     .append("svg")
     .attr("width", bubbleWidth + margins.left + margins.right)
     .attr("height", bubbleHeight + margins.top + margins.bottom)
+    .attr("viewBox", [0, 0, bubbleWidth + margins.left + margins.right, bubbleHeight + margins.top + margins.bottom])
     .append("g")
     .attr("transform","translate(" + margins.left + "," + margins.top + ")");
 
+function generateSizeLegend(parent, scale, n=3) {
+    const xLabel = 80;
+    const domain = scale.domain();
+    const niceDomain = d3.nice(domain[0], domain[1], n);
+    const circles = d3.ticks(niceDomain[0], niceDomain[1], n);
+    circles.shift();
+    circles.sort((a, b) => b - a);
+
+    const steps = d3.tickStep(niceDomain[0], niceDomain[1], n);
+    const format = d3.formatPrefix(",.0", steps);
+
+    const container = parent.datum(circles)
+        .join("g")
+    
+    container.transition()
+        .duration(transitionDuration)
+        .attr("transform", `translate(${scale(niceDomain[1])},${2*scale(niceDomain[1])})`);
+    
+    container.selectAll("circle")
+        .data(circles)
+        .join("circle")
+        .style("fill", "gray")
+        .style("fill-opacity", 0.3)
+        .attr("stroke", "black")
+        .attr("stroke-width", 1)
+        .transition()
+        .duration(transitionDuration)
+        .attr("r", d => scale(d))
+        .attr("cy", d => -scale(d));
+
+    container.selectAll("line")
+        .data(circles)
+        .join("line")
+        .style('stroke', 'black')
+        .style('stroke-dasharray', ('2,2'))
+        .transition()
+        .duration(transitionDuration)
+        .attr("x1", scale)
+        .attr("y1", d => -scale(d))
+        .attr("x2", xLabel)
+        .attr("y2", d => -scale(d))
+        
+    container.selectAll("text")
+        .data(circles)
+        .join("text")
+        .attr("font-size", 12)
+        .attr("dy", "0.32em")
+        .transition()
+        .duration(transitionDuration)
+        .attr("x", xLabel + 3)
+        .attr("y", d => -scale(d))
+        .text(d => `${format(d)} people`)
+}
+
 d3.csv("data/housePriceIncome.csv").then(function(data) {
-    function updateBubbleChart(year)
-    {
-
-        console.log(year);
-        //remove old chart
-        bubbleSvg.selectAll("*").remove(); //this may be causing bug
-
-        const fData = data.filter(d => d.year === year);
-
-        fData.sort((a, b) => b.population - a.population); //sort population in ascending order
-
-        //convert to numerical values from the csv
-        fData.forEach(d => {
-            d.avg_income = +d.avg_income;
-            d.avg_housePrice = +d.avg_housePrice;
-            d.population = +d.population;
-        });
-
-        //x axis
-        const x = d3.scaleLinear().domain([0,d3.max(fData, d=>d.avg_income) * 1.5]).range([0, bubbleWidth]);
-        bubbleSvg.append("g").attr("transform","translate(0,"+bubbleHeight+")").call(d3.axisBottom(x));
-
-        //y axis
-        const y = d3.scaleLinear().domain([0, d3.max(fData, d=>d.avg_housePrice) * 1.5]).range([bubbleHeight, 0]);
-        bubbleSvg.append("g").call(d3.axisLeft(y));
+    const xAxisGroup = bubbleSvg.append("g").attr("transform","translate(0,"+bubbleHeight+")");
+    const yAxisGroup = bubbleSvg.append("g");
 
         //x axis label
         bubbleSvg.append("text")
@@ -67,32 +99,21 @@ d3.csv("data/housePriceIncome.csv").then(function(data) {
         const bubbleColours = d3.scaleOrdinal()
             .domain(["England", "Scotland","Wales"])
             .range(d3.schemeSet2)
-
-        //bubble scale, z axis, making the bubbles the size of the population for each country/region
-        const z = d3.scaleLinear()
-            .domain([d3.min(fData, d=>d.population), d3.max(fData, d=>d.population)])
-            .range([5, 50]); //maybe modify bubble size
-
         
 
         //tool tip div, hidden on load
         const ttip = d3.select('#bubbleChart')
             .append("div")
             .style("opacity", 0)
-            .attr("class", "tooltip")
-            .style("background-color", "black")
-            .style("border-radius", "5px")
-            .style("padding", "10px")
-            .style("color", "white")
-            .style("position","absolute");
+            .attr("class", "tooltip");
 
         //functions for tool tip
         const showttip = function(event, d)
         {
-            ttip.transition().duration(200)
-            ttip
+            ttip.html("Country/Region: " + d.countryRegionName + "<br> Population: " + d3.format(",")(d.population))
+                .transition()
+                .duration(200)
                 .style("opacity",1)
-                .html("Country/Region: " + d.countryRegionName + "<br> Population: " + d3.format(",")(d.population))
                 .style("left", (event.pageX+10) + "px")
                 .style("top", (event.pageY-10) + "px");
 
@@ -145,14 +166,41 @@ d3.csv("data/housePriceIncome.csv").then(function(data) {
             .style("font-size", "12px")
             .text(d => d.name);
 
-        bubbleSvg.append('g')
-            .selectAll("circle")
+    const bubblesGroup = bubbleSvg.append('g').classed("bubbles", true);
+
+    const sizeLegendGroup = bubbleSvg.append("g").attr("transform", "translate(600, 845)").append("g");
+
+    function updateBubbleChart(year)
+    {
+        const fData = data.filter(d => d.year === year);
+
+        fData.sort((a, b) => b.population - a.population); //sort population in ascending order
+
+        //convert to numerical values from the csv
+        fData.forEach(d => {
+            d.avg_income = +d.avg_income;
+            d.avg_housePrice = +d.avg_housePrice;
+            d.population = +d.population;
+        });
+
+        //x axis
+        const x = d3.scaleLinear().domain([0,d3.max(fData, d=>d.avg_income) * 1.5]).range([0, bubbleWidth]);
+        xAxisGroup.transition().duration(transitionDuration).call(d3.axisBottom(x));
+
+        //y axis
+        const y = d3.scaleLinear().domain([0, d3.max(fData, d=>d.avg_housePrice) * 1.5]).range([bubbleHeight, 0]);
+        yAxisGroup.transition().duration(transitionDuration).call(d3.axisLeft(y))
+
+        //bubble scale, z axis, making the bubbles the size of the population for each country/region
+        const z = d3.scaleLinear()
+            .domain([d3.min(fData, d=>d.population), d3.max(fData, d=>d.population)])
+            .range([5, 50]); //maybe modify bubble size
+
+        generateSizeLegend(sizeLegendGroup, z);
+
+        bubblesGroup.selectAll("circle")
             .data(fData)
-            .enter()
-            .append("circle")
-            .attr("cx", d => x(d.avg_income)) //x axis is average income
-            .attr("cy", d => y(d.avg_housePrice)) //y axis is average house price
-            .attr("r", d => z(d.population)) //bubble size is population
+            .join("circle")
             .style("fill", d => regionScaleByName(d.countryRegionName))
             .style("opacity", 0.7)
             .on("mouseover", showttip)
@@ -176,10 +224,12 @@ d3.csv("data/housePriceIncome.csv").then(function(data) {
                 });
                 document.dispatchEvent(bubbleSelectedEvent);
                 
-            });
-            
-            //------bubble legend------//
-            
+            })
+            .transition()
+            .duration(transitionDuration)
+            .attr("cx", d => x(d.avg_income)) //x axis is average income
+            .attr("cy", d => y(d.avg_housePrice)) //y axis is average house price
+            .attr("r", d => z(d.population)); //bubble size is population
     }
 
     //listen for region selections from the map to highlight bubbles
@@ -192,7 +242,23 @@ d3.csv("data/housePriceIncome.csv").then(function(data) {
         d3.selectAll("circle")
             .filter(d => d.countryRegionName === e.detail.regionName)
             .classed("highlighted-bubble", true);
+
+            
     });
+
+    // event listener to detect selections in packing chart
+    document.addEventListener('packingRegionSelected', function(e) {
+    const selectedRegion = e.detail.regionName;
+
+    // remove old bubble highlights
+    d3.selectAll("#bubbleChart circle")
+        .classed("highlighted-bubble", false);
+
+    // highlight matching bubbles
+    d3.selectAll("#bubbleChart circle")
+        .filter(d => d.countryRegionName === selectedRegion)
+        .classed("highlighted-bubble", true);
+});
 
     //init chart
     updateBubbleChart(sliderCurrentValue());

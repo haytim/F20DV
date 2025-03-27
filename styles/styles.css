@@ -33,26 +33,32 @@ h1, h2, h3 {
 
 svg {
     width: 100%;
-    height: 900px;
+    height: auto;
     border: 1px solid #ddd;
 }
-
-#packing, svg {
-    width: 100%;
-    height: 1400px;
-    border: 1px solid #ddd;
-}
-
 
 /*bubble chart stuff*/
-circle {
+.bubbles circle {
     stroke-width: 2px;
     stroke: white;
 }
 
-circle:hover
+.bubbles circle:hover
 {
     stroke: black;
+}
+
+/*bubble highlighting stuff*/
+.bubbles circle {
+    opacity: 0.7;
+    stroke: none;
+    transition: opacity 0.2s ease, stroke-width 0.2s ease;
+}
+
+.bubbles circle.highlighted-bubble {
+    opacity: 0;
+    stroke: rgb(255, 74, 240);
+    stroke-width: 5px;
 }
 
 /* set general padding and margin for body*/
@@ -113,7 +119,7 @@ body {
 }
 
 /* tooltip styling*/
-#tooltip {
+.tooltip {
     position: absolute;
     pointer-events: none;
     background: white;
@@ -169,3 +175,4 @@ circle.highlighted-bubble {
     font-size: 11px;
     fill: #333;
   }
+

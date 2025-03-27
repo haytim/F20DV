@@ -1,6 +1,6 @@
 
 //tooltip for testing
-const tooltip = d3.select("#tooltip");
+const tooltip = d3.select("#tooltip").classed("tooltip", true);
 
 //set up SVG dimensions
 const w = 800, h = 1500;
@@ -8,7 +8,8 @@ const w = 800, h = 1500;
 //create SVG element
 const svg2 = d3.select("#regions-map")
     .attr("width", w)
-    .attr("height", h);
+    .attr("height", h)
+    .attr("viewBox", [0, 0, w, h]);
 
 const g2 = svg2.append("g");
 
@@ -195,11 +196,14 @@ Promise.all([
                 const value = parseFloat(dataMap[regionName]?.["Net Migration"][year] || 0);
                 
                 tooltip
-                    .style("display", "block")
                     .html(
                         `<strong>Region:</strong> ${regionName}<br>
-                         <strong>Net Migration:</strong> ${value.toLocaleString()}`
-                    );
+                        <strong>Net Migration:</strong> ${value.toLocaleString()}`
+                    )
+                    .transition()
+                    .duration(200)
+                    .style("opacity", 1);
+                    
             })
             //mousemove to move hte tooltip when cursor moves
             .on("mousemove", function (event) {
@@ -209,7 +213,9 @@ Promise.all([
             })
             //remove tooltip when no longer on that region
             .on("mouseout", function () {
-                tooltip.style("display", "none");
+                tooltip.transition()
+                .duration(200)
+                .style("opacity", 0);
             })
             //on click function to zoom into the region when clicked
             .on("click", function (event, d) {
@@ -323,7 +329,7 @@ Promise.all([
                 //unzoom when clicking on an LA
                 zoomedRegion = null;
                 resetZoom(); //reset zoom state
-            });
+            })
     }
 
     //update info box function that sets the elements in index html to the correct values for the industry gross value added
@@ -385,6 +391,40 @@ Promise.all([
         }
     });
     
+    // event listener to detect selections in packing chart
+    document.addEventListener('packingRegionSelected', function(e) {
+    const selectedRegion = e.detail.regionName;
+    const selectedYear = e.detail.year;
+
+    // matching geo features against selection in packing chart
+    const regionFeature = regions.features.find(
+        feature => feature.properties.areanm === selectedRegion
+    );
+
+    if (regionFeature) {
+        // zooming into selected local authorities
+        zoomedRegion = selectedRegion;
+        zoomToRegion(regionFeature);
+        renderLocalAuthorities(regionFeature, selectedYear);
+        updateInfoBox(selectedRegion, selectedYear);
+
+        // ensure slider matches year selection
+        if (selectedYear && selectedYear !== sliderCurrentValue()) {
+            document.getElementById("global-slider").value = selectedYear;
+            document.querySelector("#slider-container span").textContent = selectedYear;
+        }
+    }
+
+    // adds region selection borders
+    g2.selectAll(".region")
+        .style("stroke", "#333")
+        .style("stroke-width", "0.5px");
+
+    g2.selectAll(".region")
+        .filter(d => d.properties.areanm === selectedRegion)
+        .style("stroke", "gold")
+        .style("stroke-width", "2px");
+    });
 
     sliderRegisterCallback(function () {
         const selectedYear = this.value;
