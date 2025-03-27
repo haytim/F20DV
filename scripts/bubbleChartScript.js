@@ -20,31 +20,8 @@ const bubbleSvg = d3.select("#bubbleChart")
     .attr("transform","translate(" + margins.left + "," + margins.top + ")");
 
 d3.csv("data/housePriceIncome.csv").then(function(data) {
-    function updateBubbleChart(year)
-    {
-
-        console.log(year);
-        //remove old chart
-        bubbleSvg.selectAll("*").remove(); //this may be causing bug
-
-        const fData = data.filter(d => d.year === year);
-
-        fData.sort((a, b) => b.population - a.population); //sort population in ascending order
-
-        //convert to numerical values from the csv
-        fData.forEach(d => {
-            d.avg_income = +d.avg_income;
-            d.avg_housePrice = +d.avg_housePrice;
-            d.population = +d.population;
-        });
-
-        //x axis
-        const x = d3.scaleLinear().domain([0,d3.max(fData, d=>d.avg_income) * 1.5]).range([0, bubbleWidth]);
-        bubbleSvg.append("g").attr("transform","translate(0,"+bubbleHeight+")").call(d3.axisBottom(x));
-
-        //y axis
-        const y = d3.scaleLinear().domain([0, d3.max(fData, d=>d.avg_housePrice) * 1.5]).range([bubbleHeight, 0]);
-        bubbleSvg.append("g").call(d3.axisLeft(y));
+    const xAxisGroup = bubbleSvg.append("g").attr("transform","translate(0,"+bubbleHeight+")");
+    const yAxisGroup = bubbleSvg.append("g");
 
         //x axis label
         bubbleSvg.append("text")
@@ -67,12 +44,6 @@ d3.csv("data/housePriceIncome.csv").then(function(data) {
         const bubbleColours = d3.scaleOrdinal()
             .domain(["England", "Scotland","Wales"])
             .range(d3.schemeSet2)
-
-        //bubble scale, z axis, making the bubbles the size of the population for each country/region
-        const z = d3.scaleLinear()
-            .domain([d3.min(fData, d=>d.population), d3.max(fData, d=>d.population)])
-            .range([5, 50]); //maybe modify bubble size
-
         
 
         //tool tip div, hidden on load
@@ -145,14 +116,37 @@ d3.csv("data/housePriceIncome.csv").then(function(data) {
             .style("font-size", "12px")
             .text(d => d.name);
 
-        bubbleSvg.append('g')
-            .selectAll("circle")
+    const bubblesGroup = bubbleSvg.append('g');
+
+    function updateBubbleChart(year)
+    {
+        const fData = data.filter(d => d.year === year);
+
+        fData.sort((a, b) => b.population - a.population); //sort population in ascending order
+
+        //convert to numerical values from the csv
+        fData.forEach(d => {
+            d.avg_income = +d.avg_income;
+            d.avg_housePrice = +d.avg_housePrice;
+            d.population = +d.population;
+        });
+
+        //x axis
+        const x = d3.scaleLinear().domain([0,d3.max(fData, d=>d.avg_income) * 1.5]).range([0, bubbleWidth]);
+        xAxisGroup.transition().duration(transitionDuration).call(d3.axisBottom(x));
+
+        //y axis
+        const y = d3.scaleLinear().domain([0, d3.max(fData, d=>d.avg_housePrice) * 1.5]).range([bubbleHeight, 0]);
+        yAxisGroup.transition().duration(transitionDuration).call(d3.axisLeft(y))
+
+        //bubble scale, z axis, making the bubbles the size of the population for each country/region
+        const z = d3.scaleLinear()
+            .domain([d3.min(fData, d=>d.population), d3.max(fData, d=>d.population)])
+            .range([5, 50]); //maybe modify bubble size
+
+        bubblesGroup.selectAll("circle")
             .data(fData)
-            .enter()
-            .append("circle")
-            .attr("cx", d => x(d.avg_income)) //x axis is average income
-            .attr("cy", d => y(d.avg_housePrice)) //y axis is average house price
-            .attr("r", d => z(d.population)) //bubble size is population
+            .join("circle")
             .style("fill", d => regionScaleByName(d.countryRegionName))
             .style("opacity", 0.7)
             .on("mouseover", showttip)
@@ -176,7 +170,12 @@ d3.csv("data/housePriceIncome.csv").then(function(data) {
                 });
                 document.dispatchEvent(bubbleSelectedEvent);
                 
-            });
+            })
+            .transition()
+            .duration(transitionDuration)
+            .attr("cx", d => x(d.avg_income)) //x axis is average income
+            .attr("cy", d => y(d.avg_housePrice)) //y axis is average house price
+            .attr("r", d => z(d.population)); //bubble size is population
             
             //------bubble legend------//
             
