@@ -1,21 +1,22 @@
 //giving the graph margins
 const margins = {
-    top: 300,
+    top: 20,
     right: 20,
-    bottom:  0,
-    left: 80
+    bottom:  20,
+    left: 20
 };
 
 //track bubble selection
 let currentBubbles = null;
 
-const bubbleWidth = 800 - margins.left - margins.right; //get the width of graph
-const bubbleHeight = 1050 - margins.top - margins.bottom; //get height of graph
+const bubbleWidth = 1000 - margins.left - margins.right; //get the width of graph
+const bubbleHeight = 1000 - margins.top - margins.bottom; //get height of graph
 
 const bubbleSvg = d3.select("#bubbleChart")
     .append("svg")
     .attr("width", bubbleWidth + margins.left + margins.right)
     .attr("height", bubbleHeight + margins.top + margins.bottom)
+    .attr("viewBox", [0, 0, bubbleWidth + margins.left + margins.right, bubbleHeight + margins.top + margins.bottom])
     .append("g")
     .attr("transform","translate(" + margins.left + "," + margins.top + ")");
 

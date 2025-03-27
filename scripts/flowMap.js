@@ -2,7 +2,8 @@ const flowWidth = 800, flowHeight = 1500;
 
 const flowSvg = d3.select("#flowMap")
     .attr("width", flowWidth)
-    .attr("height", flowHeight);
+    .attr("height", flowHeight)
+    .attr("viewBox", [0, 0, flowWidth, flowHeight]);
 
 const flowg = flowSvg.append("g");
 

@@ -7,7 +7,8 @@ const w = 800, h = 1500;
 //create SVG element
 const svg2 = d3.select("#regions-map")
     .attr("width", w)
-    .attr("height", h);
+    .attr("height", h)
+    .attr("viewBox", [0, 0, w, h]);
 
 const g2 = svg2.append("g");
 
