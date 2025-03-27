@@ -1,5 +1,5 @@
 //tooltip for testing
-const tooltip = d3.select("#tooltip");
+const tooltip = d3.select("#tooltip").classed("tooltip", true);
 
 //set up SVG dimensions
 const w = 800, h = 1500;
@@ -112,11 +112,14 @@ Promise.all([
                 const value = parseFloat(dataMap[regionName]?.["Net Migration"][year] || 0);
                 
                 tooltip
-                    .style("display", "block")
                     .html(
                         `<strong>Region:</strong> ${regionName}<br>
-                         <strong>Net Migration:</strong> ${value.toLocaleString()}`
-                    );
+                        <strong>Net Migration:</strong> ${value.toLocaleString()}`
+                    )
+                    .transition()
+                    .duration(200)
+                    .style("opacity", 1);
+                    
             })
             //mousemove to move hte tooltip when cursor moves
             .on("mousemove", function (event) {
@@ -126,7 +129,9 @@ Promise.all([
             })
             //remove tooltip when no longer on that region
             .on("mouseout", function () {
-                tooltip.style("display", "none");
+                tooltip.transition()
+                .duration(200)
+                .style("opacity", 0);
             })
             //on click function to zoom into the region when clicked
             .on("click", function (event, d) {

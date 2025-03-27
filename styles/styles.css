@@ -106,15 +106,13 @@ body {
 }
 
 /* tooltip styling*/
-#tooltip {
+.tooltip {
     position: absolute;
     pointer-events: none;
     background: white;
     padding: 5px;
     border: 1px solid #ccc;
     border-radius: 5px;
-    display: none;
-    z-index: 10;
 }
 
 /*bubble highlighting stuff*/

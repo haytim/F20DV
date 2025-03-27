@@ -32,16 +32,11 @@ d3.csv("/data/populationByRegion.csv").then(function(data) {
     const Tooltip = d3.select("#packing")
       .append("div")
       .style("opacity", 0)
-      .attr("class", "tooltip")
-      .style("background-color", "white")
-      .style("border", "solid 2px black")
-      .style("border-radius", "5px")
-      .style("padding", "5px")
-      .style("position", "absolute");
+      .attr("class", "tooltip");
 
     // displaying data tootip for onhover
     const mouseover = function(event, d) {
-      Tooltip.style("opacity", 1);
+      Tooltip.transition().duration(200).style("opacity", 1);
     };
 
     // displaying data for the given circle
@@ -53,7 +48,7 @@ d3.csv("/data/populationByRegion.csv").then(function(data) {
 
     // hiding data tootip when no longer hovering   
     const mouseleave = function(event, d) {
-      Tooltip.style("opacity", 0);
+      Tooltip.transition().duration(200).style("opacity", 0);
     };
 
     // drag behaviour

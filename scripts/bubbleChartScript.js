@@ -51,20 +51,15 @@ d3.csv("data/housePriceIncome.csv").then(function(data) {
         const ttip = d3.select('#bubbleChart')
             .append("div")
             .style("opacity", 0)
-            .attr("class", "tooltip")
-            .style("background-color", "black")
-            .style("border-radius", "5px")
-            .style("padding", "10px")
-            .style("color", "white")
-            .style("position","absolute");
+            .attr("class", "tooltip");
 
         //functions for tool tip
         const showttip = function(event, d)
         {
-            ttip.transition().duration(200)
-            ttip
+            ttip.html("Country/Region: " + d.countryRegionName + "<br> Population: " + d3.format(",")(d.population))
+                .transition()
+                .duration(200)
                 .style("opacity",1)
-                .html("Country/Region: " + d.countryRegionName + "<br> Population: " + d3.format(",")(d.population))
                 .style("left", (event.pageX+10) + "px")
                 .style("top", (event.pageY-10) + "px");
 
