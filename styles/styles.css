@@ -129,6 +129,13 @@ body {
     z-index: 10;
 }
 
+/*circle style stuff*/
+circle {
+    opacity: 0.7;
+    stroke: none;
+    transition: opacity 0.2s ease, stroke-width 0.2s ease;
+}
+
 /*region map legend styles*/
 .color-legend {
     font-family: Arial, sans-serif;
