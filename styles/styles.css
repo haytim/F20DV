@@ -57,7 +57,7 @@ svg {
 
 .bubbles circle.highlighted-bubble {
     opacity: 0;
-    stroke: rgb(255, 74, 240);
+    stroke: gold;
     stroke-width: 5px;
 }
 
@@ -127,19 +127,6 @@ body {
     border: 1px solid #ccc;
     border-radius: 5px;
     z-index: 10;
-}
-
-/*bubble highlighting stuff*/
-circle {
-    opacity: 0.7;
-    stroke: none;
-    transition: opacity 0.2s ease, stroke-width 0.2s ease;
-}
-
-circle.highlighted-bubble {
-    opacity: 0;
-    stroke: rgb(255, 74, 240);
-    stroke-width: 5px;
 }
 
 /*region map legend styles*/
