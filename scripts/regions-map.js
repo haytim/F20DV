@@ -22,20 +22,26 @@ const projection2 = d3.geoMercator()
 //define path generator
 const path2 = d3.geoPath().projection(projection2);
 
-//these track zoom state, la data, industry data
+//these track zoom state, la data, industry data, and the current legend
 let zoomedRegion = null;
 let localAuthorityBorders = null;
 let industryData = null;
+let currentLegend = null;
 
 //legend creation function
 function createDivergingLegend(colorScale, title, { 
     width = 300, 
     height = 40,
     marginTop = 20,
-    marginRight = 20,
+    marginRight = 40,
     ticks = 5,
     tickFormat = d3.format(",.0f"),
   } = {}) {
+    //check if legend already exists if it does remove it
+    if (currentLegend) {
+        currentLegend.remove();
+    }
+
     //create legend container
     const legend = svg2.append("g")
       .attr("class", "color-legend")
@@ -101,6 +107,9 @@ function createDivergingLegend(colorScale, title, {
       .attr("class", "legend-axis")
       .attr("transform", `translate(0,32)`)
       .call(axis);
+
+    currentLegend = legend;
+    return legend;
   }
 
 //load data and map
@@ -123,14 +132,9 @@ Promise.all([
         )
     }));
 
+    //colour scales for the diverging legend
     const colorScaleLeg = d3.scaleDiverging([-200000, 0, 200000], d3.interpolatePiYG);
-      
-    //create the legend
-    createDivergingLegend(colorScaleLeg, "Net Migration", {
-        width: 250,
-        ticks: 5,
-        tickFormat: d => d3.format("+,.0f")(d)
-    });
+    const colorScaleLeg2 = d3.scaleDiverging([-20000, 0, 20000], d3.interpolatePiYG);
 
     //get regions data from the topoJSON file
     const regions = topojson.feature(regionTopo, regionTopo.objects.rgn);
@@ -169,8 +173,8 @@ Promise.all([
     const maxValue = 40000; 
 
     //set min max for las
-    const laMinValue = -927;
-    const laMaxValue = 3500;
+    const laMinValue = -15000;
+    const laMaxValue = 10000;
 
     //define color scale (pink for negative, green for positive)
     const colorScale = d3.scaleDiverging([minValue, 0, maxValue], d3.interpolatePiYG);
@@ -261,14 +265,28 @@ Promise.all([
 
         g2.transition()
             .duration(750)
-            .attr("transform", `translate(${translate[0]},${translate[1]}) scale(${scale})`);
+            .attr("transform", `translate(${translate[0]},${translate[1]}) scale(${scale})`)
+            .on("end", () => {
+                createDivergingLegend(colorScaleLeg2, "Net Migration", {
+                    width: 250,
+                    ticks: 5,
+                    tickFormat: d => d3.format("+,.0f")(d)
+                });
+            });
     }
 
     //reset the zoom
     function resetZoom() {
         g2.transition()
             .duration(750)
-            .attr("transform", `translate(0,0) scale(1)`);
+            .attr("transform", `translate(0,0) scale(1)`)
+            .on("end", () => {
+                createDivergingLegend(colorScaleLeg, "Net Migration", {
+                    width: 250,
+                    ticks: 5,
+                    tickFormat: d => d3.format("+,.0f")(d)
+                });
+            });
 
         //clear local authority borders when zooming out
         g2.selectAll(".local-authority").remove();
@@ -372,6 +390,13 @@ Promise.all([
 
     //initial map rendering
     updateMap(sliderCurrentValue());
+
+    //initial diverging legend setup (updated on zoom calls)
+    createDivergingLegend(colorScaleLeg, "Net Migration", {
+        width: 250,
+        ticks: 5,
+        tickFormat: d => d3.format("+,.0f")(d)
+    });
 
     document.addEventListener('bubbleSelected', function(e) {
         const selectedRegion = e.detail.regionName;
