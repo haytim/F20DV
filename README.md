@@ -89,3 +89,12 @@ This visualisation shows the frequency of moves per each age group.
 ### `Regions Map` - `Regions Migration Over Time`
 
 Displays the net migration for each region of the UK. If a region is selected, this region is also highlighted in the `Bubble Chart` and `Circular Packing Chart`. This visualisation will present the regional gross value per each industry of that region within a container, if a region is selected.
+
+### Bi-directionality
+
+### `Chord Diagram` & `Flow Map` 
+The Chord diagram is bidirectional with the Flow map in regards to region. When hovering over a region on either visualisations, the migration flow both both chart is displayed.
+
+### `Regions Map` & `Bubble Chart` & `Circular Packing Chart`
+Selecting a region on the region map will select the corresponding region on the bubble chart, as well as all the circles matching the region will be selected. This selection can also be performed from the bubble chart or circular packing chart, selecting the corresponding regions on each visualisation.
+This allows for the comparison of house price, migration, and population between regions and local authorities.
