@@ -87,11 +87,11 @@ d3.csv("/data/populationByRegion.csv").then(function(data) {
   });  
 
 /*
-  // create a color scale based on  regions
+  // create a colour scale based on  regions
   const regions = Array.from(new Set(processedData.map(d => d.region))); // getting unique regions
-  const color = d3.scaleOrdinal()
+  const colour = d3.scaleOrdinal()
     .domain(regions)
-    .range(d3.schemeSet3.slice(0, regions.length)); // maps each region to a color
+    .range(d3.schemeSet3.slice(0, regions.length)); // maps each region to a colour
     // .range(d3.quantize(d3.interpolatePiYG, regions.length)); colour scheme for piyg (may or may not use)
 */
 
@@ -109,14 +109,14 @@ d3.csv("/data/populationByRegion.csv").then(function(data) {
     .data(processedData)
     .join("circle")
       .attr("r", d => size(d.value))
-      .style("fill", d => color(d.region))  // Color circles by region
+      .style("fill", d => color(d.region))  
       .style("fill-opacity", 1)
       .attr("stroke", "black")
       .style("stroke-width", 1)
       .on("mouseover", mouseover)
       .on("mousemove", mousemove)
       .on("mouseleave", mouseleave)
-      .call(drag);  // Enable dragging of circles
+      .call(drag);  // enables dragging of circles
 
     simulation.nodes(processedData).on("tick", function() {
       node.attr("cx", d => d.x)
@@ -147,58 +147,90 @@ d3.csv("/data/populationByRegion.csv").then(function(data) {
           .style("fill-opacity", 1);
   }
 
-// function to reset circles back to the default appearance
-function resetCirclesToDefault() {
-  packingSvg.selectAll("circle")
-      .style("stroke", "none") // no border by default
-      .style("fill-opacity", 1)
-      .style("fill", d => regionScaleByName(d.region));
-}
+  // removes any old legend 
+  packingSvg.selectAll(".packing-legend").remove();
 
-// tracking selected circle
-let selectedCircle = null;
+  // get all unique regions 
+  const packingRegions = Array.from(new Set(processedData.map(d => d.region)));
+  const legendCols = 4;
 
-// selected circle functionality
-node.on("click", function(event, d) {
-  const clickedCircle = d3.select(this);
-  const isSelected = clickedCircle.classed("selected-circle");
+  // adds a group for the legend
+  const packingLegendGroup = packingSvg.append("g")
+    .attr("class", "packing-legend")
+    .attr("transform", `translate(${(packingWidth - (180 * legendCols))}, ${packingHeight - 100})`); // adjusting legend position
 
-  if (!isSelected) {
-      // clear previous selection
-      packingSvg.selectAll("circle")
-          .classed("selected-circle", false)
-          .style("stroke", "none")
-          .style("fill-opacity", 0.5);
+  // postions each item in rows and columns
+  const packingLegendItems = packingLegendGroup.selectAll(".packing-legend-item")
+    .data(packingRegions)
+    .enter()
+    .append("g")
+    .attr("class", "packing-legend-item")
+    .attr("transform", (d, i) => {
+      const x = (i % legendCols) * 180;
+      const y = Math.floor(i / legendCols) * 30;
+      return `translate(${x}, ${y})`;
+    });
 
-      // select clicked circle
-      clickedCircle
-          .classed("selected-circle", true)
-          .style("stroke", "gold")
-          .style("stroke-width", 3)
-          .style("fill-opacity", 1);
+  // colour by region
+  packingLegendItems.append("rect")
+    .attr("width", 20)
+    .attr("height", 20)
+    .attr("fill", d => regionScaleByName(d))
+    .attr("stroke", "black")
+    .attr("stroke-width", 1);
 
-      selectedCircle = clickedCircle;
+  // adding region names
+  packingLegendItems.append("text")
+    .attr("x", 30)
+    .attr("y", 15)
+    .style("font-size", "12px")
+    .text(d => d);
 
-      // broadcast selection event 
-      const packingRegionSelectedEvent = new CustomEvent('packingRegionSelected', {
-          detail: { regionName: d.region, year: sliderCurrentValue() }
-      });
-      document.dispatchEvent(packingRegionSelectedEvent);
-
-  } else {
-      // deselect if it was already selected
-      selectedCircle = null;
-      resetCirclesToDefault(); // reset circle style
-
-      // braodcast deselection event
-      const packingRegionDeselectedEvent = new CustomEvent('packingRegionDeselected', {
-          detail: { regionName: d.region, year: sliderCurrentValue() }
-      });
-      document.dispatchEvent(packingRegionDeselectedEvent);
+  // function to reset circles back to the default appearance
+  function resetCirclesToDefault() {
+    packingSvg.selectAll("circle")
+        .style("stroke", "none") // no border by default
+        .style("fill-opacity", 1)
+        .style("fill", d => regionScaleByName(d.region));
   }
-});
 
+  // selected circle functionality
+  node.on("click", function(event, d) {
+    const clickedCircle = d3.select(this);
+    const isSelected = clickedCircle.classed("selected-circle");
+
+    if (!isSelected) {
+        // clear previous selection
+        packingSvg.selectAll("circle")
+            .classed("selected-circle", false)
+            .style("stroke", "none")
+            .style("fill-opacity", 0.5);
+
+        // select clicked circle
+        clickedCircle
+            .classed("selected-circle", true)
+            .style("stroke", "gold")
+            .style("stroke-width", 3)
+            .style("fill-opacity", 1);
+
+        // broadcast selection event 
+        const packingRegionSelectedEvent = new CustomEvent('packingRegionSelected', {
+            detail: { regionName: d.region, year: sliderCurrentValue() }
+        });
+        document.dispatchEvent(packingRegionSelectedEvent);
+
+    } else {
+        resetCirclesToDefault(); // reset circle style
+
+        // braodcast deselection event
+        const packingRegionDeselectedEvent = new CustomEvent('packingRegionDeselected', {
+            detail: { regionName: d.region, year: sliderCurrentValue() }
+        });
+        document.dispatchEvent(packingRegionDeselectedEvent);
+    }
+  });
 }
+
   // dragging functionality
   function dragstarted(event, d) {
     if (!event.active) simulation.alphaTarget(0.2).restart(); // activating simulation
