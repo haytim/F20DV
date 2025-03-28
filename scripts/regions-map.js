@@ -445,15 +445,8 @@ Promise.all([
         }
     }
 
-    //adds region selection borders
-    g2.selectAll(".region")
-        .style("stroke", "#333")
-        .style("stroke-width", "0.5px");
-
     g2.selectAll(".region")
         .filter(d => d.properties.areanm === selectedRegion)
-        .style("stroke", "gold")
-        .style("stroke-width", "2px");
     });
 
     sliderRegisterCallback(function () {
