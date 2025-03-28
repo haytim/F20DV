@@ -15,7 +15,6 @@ const flowProjection = d3.geoMercator()
 
 const flowPath = d3.geoPath().projection(flowProjection);
 
-
 function flowMapHighlightStart(regionCode) {
     document.querySelector(`#flow-map-region-${regionCode}`)?.dispatchEvent(new Event("mouseover"))
 }
@@ -132,7 +131,7 @@ Promise.all([
         })
         .attr("stroke", "green") //set flow line color to green
         .attr("stroke-opacity", 0.7) //slight transparency
-        .attr("stroke-width", d => (d.weight / maxWeight) * 50) //scale line width by weight
+        .attr("stroke-width", d => (d.weight / maxWeight) * 40) //scale line width by weight
         .attr("stroke-linecap", "round")
         .attr("opacity", 1)
         .attr("fill", "none"); //ensure no fill for the paths

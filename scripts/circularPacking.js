@@ -1,6 +1,6 @@
 // set dimensions for the graph
 const packingWidth = 800;
-const packingHeight = 1170;
+const packingHeight = 1100;
 
 // append an SVG container to the element with ID "packing"
 const packingSvg = d3.select("#packing")
