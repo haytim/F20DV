@@ -246,6 +246,14 @@ d3.csv("data/housePriceIncome.csv").then(function(data) {
             
     });
 
+    //un highlight the bubbles when the map zooms out again
+    document.addEventListener('regionUnselected', function(e) {
+        //remove highlights from all bubbles
+        d3.selectAll("circle")
+            .classed("highlighted-bubble", false);
+
+    });
+
     // event listener to detect selections in packing chart
     document.addEventListener('packingRegionSelected', function(e) {
     const selectedRegion = e.detail.regionName;

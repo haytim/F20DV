@@ -229,6 +229,14 @@ d3.csv("/data/populationByRegion.csv").then(function(data) {
         document.dispatchEvent(packingRegionDeselectedEvent);
     }
   });
+
+  document.addEventListener('regionUnselected', function(e) {
+    //remove highlights from all bubbles by calling resetCircles
+    //console.log("UNSELECT");
+    resetCirclesToDefault();
+
+  });
+
 }
 
   // dragging functionality

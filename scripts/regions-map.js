@@ -290,6 +290,11 @@ Promise.all([
 
         //clear local authority borders when zooming out
         g2.selectAll(".local-authority").remove();
+
+        //custom event when a region is unselected for bidirectional interaction with the bubble chart and circular packing
+        const regionUnselectedEvent = new CustomEvent('regionUnselected');
+        document.dispatchEvent(regionUnselectedEvent);
+        //console.log("dispatched");
     }
 
     //function to render local authorities borders when a region is selected
