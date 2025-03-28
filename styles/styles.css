@@ -37,6 +37,15 @@ svg {
     border: 1px solid #ddd;
 }
 
+#circularPackingTitle {
+    font-weight: bold;
+    width: min-content;
+    margin: auto;
+    text-overflow: none;
+    white-space: nowrap;
+    font-size: 110%;
+}
+
 #packing svg {
     width: 50%;
     display: block;
