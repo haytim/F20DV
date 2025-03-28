@@ -157,7 +157,7 @@ d3.csv("/data/populationByRegion.csv").then(function(data) {
   // adds a group for the legend
   const packingLegendGroup = packingSvg.append("g")
     .attr("class", "packing-legend")
-    .attr("transform", `translate(${(packingWidth - (180 * legendCols))}, ${packingHeight - 100})`); // adjusting legend position
+    .attr("transform", `translate(${(packingWidth - (185 * legendCols))}, ${packingHeight - 100})`); // adjusting legend position
 
   // postions each item in rows and columns
   const packingLegendItems = packingLegendGroup.selectAll(".packing-legend-item")
@@ -166,7 +166,7 @@ d3.csv("/data/populationByRegion.csv").then(function(data) {
     .append("g")
     .attr("class", "packing-legend-item")
     .attr("transform", (d, i) => {
-      const x = (i % legendCols) * 180;
+      const x = (i % legendCols) * 185;
       const y = Math.floor(i / legendCols) * 30;
       return `translate(${x}, ${y})`;
     });
