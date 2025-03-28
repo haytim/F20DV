@@ -21,3 +21,71 @@ These expect the script to be run from the working directory `data/scripts` with
 ### `aggregateRegionIndusty` and `mergeRegionAndLAs`
 
 These expect a working directory at the root of the repository.
+
+## Datasets and their usage
+
+### `housePriceIncome`, `table1_housingPurchase_housePriceDeciles` and `table2_housingPurchase_incomeDeciles`
+
+Used in the bubble chart visualisation, `House Price Deciles Compared To Income Deciles And Population Per Region`.
+`housePriceIncome` is derived from two tables of data, `table1_housingPurchase_housePriceDeciles` and `table2_housingPurchase_incomeDeciles`.
+'Population' column of data derived from data from `populationByRegion`, by summing the population for each major UK region (e.g. England, Scotland).
+
+### `internal_migration_matrices`
+
+Describes the internal migration per each year from 2012 to 2022 for each region in the UK.
+Used in the flow map and the chord diagram visualisations for each of the regions.
+
+### `likelihood_of_moving_by_age`
+
+The probability of moving per age, along with the probability of how many moves are made. 
+Used in the histogram visualisation.
+
+### `Itla2024.geojson`
+
+Geometric data of the legal authorities throughout the UK.
+Used in the regions map visualisation.
+
+### `orderedRegionLAMigration`, `internalUKMigrationTimeseries` and `regionMigrationUK`
+
+`orderedRegionLAMigration` was derived from both `internalUKMigrationTimeseries` files (csv, json) and `regionMigrationUK`. 
+Used in the regions map visualisation.
+
+### `populationByRegion`
+
+The population for each region in the UK per each year from 2012 to 2022.
+Used in the circular packing visualisation.
+
+### `rgn2024`
+
+Used as geographic data of the regions of the UK.
+Used in the flow map and regions map visualisations.
+
+### `rgvAddedCondensed` and `regionalGrossValueAddedInMillionsByIndustry`
+
+`rgvAddedCondensed` was derived from data from `regionalGrossValueAddedInMillionsByIndustry`.
+Used in the regions map visualisation.
+
+## Visualisations
+
+### `Bubble Chart` - `House Price Compared To Income And Population Per Region`
+
+This bubble chart compares the average house price to average income per each region, with each bubble being the size of the population per each region.
+
+### `Chord Diagram` and `Flow Map` - `Migration Between Regions`
+
+These graphs both display the migration between regions- showing where people are moving from and moving to.
+The flow map differs by showing the cumulative migration over the span of the time scale.
+Both of these graphs interact with each other, hovering over a region in the chord diagram will highlight the migratory patterns in the flow map.
+
+### `Circular Packing Chart` - `Population per Region`
+
+Displays the population per region as the bubble size, and the bubbles are roughly organised into the shape of the UK.
+An interactive visualisation where you are able to drag a region around, good for comparing the size of bubbles against each other to get a sense of the scale between the regions.
+
+### `Histogram` - `Moving by Age`
+
+This visualisation shows the frequency of moves per each age group.
+
+### `Regions Map` - `Regions Migration Over Time`
+
+Displays the net migration for each region of the UK. If a region is selected, this region is also highlighted in the `Bubble Chart` and `Circular Packing Chart`. This visualisation will present the regional gross value per each industry of that region within a container, if a region is selected.

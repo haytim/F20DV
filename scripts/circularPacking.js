@@ -1,13 +1,14 @@
 // set dimensions for the graph
-const packingWidth = 800;
-const packingHeight = 1100;
+const packingWidth = 800; //800
+const packingHeight = 1100; //1100
 
 // append an SVG container to the element with ID "packing"
 const packingSvg = d3.select("#packing")
   .append("svg")
     .attr("width", packingWidth)
     .attr("height", packingHeight)
-    .attr("viewBox", [0, 0, packingWidth, packingHeight]);
+    //.attr("viewBox", [0, 0, packingWidth, packingHeight])
+    .attr("viewBox", [0, 0, packingWidth * 2, packingHeight * 2])
 
 // load CSV data for population by region
 d3.csv("/data/populationByRegion.csv").then(function(data) {
