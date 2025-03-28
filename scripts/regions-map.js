@@ -16,7 +16,7 @@ const g2 = svg2.append("g");
 //define projection
 const projection2 = d3.geoMercator()
     .center([-2, 54])  //set center
-    .scale(2500)       //adjust scale
+    .scale(3250)
     .translate([w / 2, h / 2]);
 
 //define path generator
@@ -31,7 +31,6 @@ let currentLegend = null;
 //legend creation function
 function createDivergingLegend(colorScale, title, { 
     width = 300, 
-    height = 40,
     marginTop = 20,
     marginRight = 40,
     ticks = 5,

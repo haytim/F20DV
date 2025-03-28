@@ -10,7 +10,7 @@ const flowg = flowSvg.append("g");
 //define projection
 const flowProjection = d3.geoMercator()
     .center([-2, 54])  //center over the UK
-    .scale(2500)       //adjust scale
+    .scale(3250)
     .translate([flowWidth / 2, flowHeight / 2]);
 
 const flowPath = d3.geoPath().projection(flowProjection);
