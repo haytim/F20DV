@@ -167,7 +167,8 @@ Promise.all([
         };
     });
 
-    //determine the range dynamically from data
+    //set min and max values for the map
+    //tbh these values don't exactly match the scale as I wanted to get a logarithmic diverging scale working so that it was easier to see the differences in the lower values
     const minValue = -20000; 
     const maxValue = 40000; 
 
