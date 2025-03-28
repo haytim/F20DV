@@ -64,7 +64,7 @@ Promise.all([
 
     function fade(areaCode, opacity) {
         flowg.selectAll(".flow")
-            .filter(d => d.sourceCode !== areaCode)
+            .filter(d => d.targetCode !== areaCode)
             .transition()
             .duration(transitionDuration)
             .attr("opacity", opacity)
@@ -96,6 +96,7 @@ Promise.all([
               source: centroids[sourceId],
               target: centroids[targetId],
               sourceCode: sourceId,
+              targetCode: targetId,
               weight: cumulativeMatrix[i][j]
             });
           }
