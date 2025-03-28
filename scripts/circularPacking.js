@@ -78,7 +78,6 @@ d3.csv("/data/populationByRegion.csv").then(function(data) {
 
   // extracting area name, numeric population, and region info
   function updatePacking(year) {
-    simulation.restart().alphaTarget(0.2);
 
   // process data for the selected year
   processedData = processedData.map((d, index) => {
