@@ -313,7 +313,10 @@ Promise.all([
                     .html(
                         `<strong>Local Authority:</strong> ${laName}<br>
                          <strong>Net Migration:</strong> ${value.toLocaleString()}`
-                    );
+                    )
+                    .transition()
+                    .duration(200)
+                    .style("opacity", 1);
             })
             //move the tooltip when the mouse moves
             .on("mousemove", function (event) {
@@ -323,7 +326,9 @@ Promise.all([
             })
             //remove tooltip when no longer on that la
             .on("mouseout", function () {
-                tooltip.style("display", "none");
+                tooltip.transition()
+                .duration(200)
+                .style("opacity", 0);
             })
             .on("click", function () {
                 //unzoom when clicking on an LA
@@ -391,31 +396,31 @@ Promise.all([
         }
     });
     
-    // event listener to detect selections in packing chart
+    //event listener to detect selections in packing chart
     document.addEventListener('packingRegionSelected', function(e) {
-    const selectedRegion = e.detail.regionName;
-    const selectedYear = e.detail.year;
+        const selectedRegion = e.detail.regionName;
+        const selectedYear = e.detail.year;
 
-    // matching geo features against selection in packing chart
-    const regionFeature = regions.features.find(
+        // matching geo features against selection in packing chart
+        const regionFeature = regions.features.find(
         feature => feature.properties.areanm === selectedRegion
     );
 
     if (regionFeature) {
-        // zooming into selected local authorities
+        //zooming into selected local authorities
         zoomedRegion = selectedRegion;
         zoomToRegion(regionFeature);
         renderLocalAuthorities(regionFeature, selectedYear);
         updateInfoBox(selectedRegion, selectedYear);
 
-        // ensure slider matches year selection
+        //ensure slider matches year selection
         if (selectedYear && selectedYear !== sliderCurrentValue()) {
             document.getElementById("global-slider").value = selectedYear;
             document.querySelector("#slider-container span").textContent = selectedYear;
         }
     }
 
-    // adds region selection borders
+    //adds region selection borders
     g2.selectAll(".region")
         .style("stroke", "#333")
         .style("stroke-width", "0.5px");
