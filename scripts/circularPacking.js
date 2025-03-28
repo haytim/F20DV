@@ -8,7 +8,7 @@ const packingSvg = d3.select("#packing")
     .attr("width", packingWidth)
     .attr("height", packingHeight)
     //.attr("viewBox", [0, 0, packingWidth, packingHeight])
-    .attr("viewBox", [0, 0, packingWidth * 2, packingHeight * 2])
+    .attr("viewBox", [0, 0, packingWidth, packingHeight])
 
 // load CSV data for population by region
 d3.csv("/data/populationByRegion.csv").then(function(data) {

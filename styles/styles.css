@@ -37,6 +37,13 @@ svg {
     border: 1px solid #ddd;
 }
 
+#packing svg {
+    width: 50%;
+    display: block;
+    position: relative;
+    transform: translateX(50%);
+}
+
 /*bubble chart stuff*/
 .bubbles circle {
     stroke-width: 2px;
