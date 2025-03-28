@@ -41,7 +41,7 @@ d3.csv("/data/populationByRegion.csv").then(function(data) {
 
     // displaying data for the given circle
     const mousemove = function(event, d) {
-      Tooltip.html(`<u>${d.key}</u><br>Population: ${d.value.toLocaleString()}<br>Region: ${d.region}`)
+      Tooltip.html(`<b><u>${d.key}</u></b><br><b>Population: </b>${d.value.toLocaleString()}<br><b>Region: </b>${d.region}`)
         .style("left", (event.pageX + 10) + "px")
         .style("top", (event.pageY - 10) + "px");
     };

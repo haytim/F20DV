@@ -110,7 +110,7 @@ d3.csv("data/housePriceIncome.csv").then(function(data) {
         //functions for tool tip
         const showttip = function(event, d)
         {
-            ttip.html("Country/Region: " + d.countryRegionName + "<br> Population: " + d3.format(",")(d.population))
+            ttip.html("<b>Region: </b>" + d.countryRegionName + "<br><b> Population: </b>" + d3.format(",")(d.population))
                 .transition()
                 .duration(200)
                 .style("opacity",1)
