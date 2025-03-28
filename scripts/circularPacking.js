@@ -20,7 +20,7 @@ d3.csv("/data/populationByRegion.csv").then(function(data) {
     "Yorkshire and The Humber": [packingWidth / 1.8, packingHeight / 2.5],
     "East Midlands": [packingWidth / 1.7, packingHeight / 2.1],
     "West Midlands": [packingWidth / 2.2, packingHeight / 1.9],
-    "East": [packingWidth / 1.5, packingHeight / 1.7],
+    "East of England": [packingWidth / 1.5, packingHeight / 1.7],
     "London": [packingWidth / 1.6, packingHeight / 1.5],
     "South East": [packingWidth / 1.4, packingHeight / 1.4],
     "South West": [packingWidth / 2.2, packingHeight / 1.5],
